@@ -1,0 +1,16 @@
+div.hero-unit
+    h1 #{title}
+    p This is a very simple MVR starting point for Node.js Express.
+    
+
+div.content
+  div.row
+    div.span12
+      form(name='form-entercn', method='POST', action='/step2').form-horizontal
+        div.control-group
+          label(for='cn').control-label
+            strong Common Name: 
+          div.controls
+            div.input-append
+              input(name='cn', type='text', placeholder="Enter Certificate's Common Name here")#cn.span8
+              button(type='submit').btn.btn-primary Get Certificate!
