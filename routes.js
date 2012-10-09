@@ -1,5 +1,8 @@
 module.exports = function(app, models, mongoose){
 
+  var title = "Certificate Depot"
+  var description = "Create your self-signed certificate with a single click."
+
   /**
    *  Index
    */
@@ -11,7 +14,8 @@ module.exports = function(app, models, mongoose){
       //render the index page
       res.render('index.jade', {
           locals: {
-            title: 'Certificates repository',
+            title: title,
+            description: description,
             page: 'index',
             examples: docs
           }
@@ -21,6 +25,34 @@ module.exports = function(app, models, mongoose){
   });
   
   
+  /**
+   *  Fill info
+   */
+  app.post('/fillinfo', function(req, res){
+    //render the index page
+    res.render('fillinfo.jade', {
+        locals: {
+          title: title,
+          description: description,
+          page: 'fillinfo'
+        }
+    });
+  });
+
+  /**
+   *  Download
+   */
+  app.post('/download', function(req, res){
+    //render the index page
+    res.render('download.jade', {
+        locals: {
+          title: title,
+          description: description,
+          page: 'download'
+        }
+    });
+  });
+
   /**
    *  Listing
    */
@@ -79,7 +111,6 @@ module.exports = function(app, models, mongoose){
   /**
    *  Add test doc
    */
-   
   app.post('/posts', function(req, res){
      var now = new Date();
      var Post = models.examples;
