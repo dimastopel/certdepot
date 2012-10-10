@@ -1,12 +1,12 @@
-div.hero-unit
-    h1 #{title}
-    p #{description}
+div.page-header
+    h1 Please fill certificate information
+        small  (optional)
     
 div.content
   div.row
     div.span12
       form(name='form-fillinfo', method='POST', action='/download').form-horizontal
-        legend Please fill additional certificate information \(optional\)
+        //legend Please fill additional certificate information \(optional\)
         - var names = ["country", "state", "city", "org", "org_unit", "email"];
         - var labels = [];
         - labels[0] = "Country Name (2 letter code)";
@@ -26,4 +26,4 @@ div.content
           label #{labels[i]}
           input(name=#{name}, type='text', value='#{values[i]}').input-xxlarge##{name}
         span.help-block
-        button(type='submit').btn.btn-primary.offset4 To Final Step
+        button(type='submit').btn.btn-primary.offset5 To the Final Step

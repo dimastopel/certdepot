@@ -1,7 +1,7 @@
 module.exports = function(app, models, mongoose){
 
   var title = "Certificate Depot"
-  var description = "Create your self-signed certificate with a single click."
+  var description = "Create your self-signed certificate instantly and free."
 
   /**
    *  Index
@@ -49,6 +49,20 @@ module.exports = function(app, models, mongoose){
           title: title,
           description: description,
           page: 'download'
+        }
+    });
+  });
+
+  /**
+   *  Help
+   */
+  app.get('/help', function(req, res){
+    //render the index page
+    res.render('help.jade', {
+        locals: {
+          title: title,
+          description: description,
+          page: 'help'
         }
     });
   });
