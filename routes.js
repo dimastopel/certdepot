@@ -66,7 +66,7 @@ module.exports = function(app, models, mongoose){
     var id = uuid.v4();
     console.log("uuid: " + id);
 
-    var prefix = "~/certs/" + cn + "$" + id + "$";
+    var prefix = "~/certs/" + cn + "--" + id + "--";
 
     var opts = { encoding: 'utf8',
                  timeout: 0,
