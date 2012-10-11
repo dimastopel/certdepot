@@ -83,23 +83,25 @@ module.exports = function(app, models, mongoose){
         console.log('stderr: ' + stderr);
         if (error !== null) {
           console.log('exec error: ' + error);
+          return;
         }
+      
+        console.log("generating public cert");
+        command = "openssl req -x509 -new -batch -subj \"/commonName=" + cn + "\" -key " + prefix + "private.txt " + " -out " + prefix + "public.txt";  
+        console.log(command);
+        exec(command, 
+          function (error, stdout, stderr) {
+            console.log('stdout: ' + stdout);
+            console.log('stderr: ' + stderr);
+            if (error !== null) {
+              console.log('exec error: ' + error);
+            }
+          }
+        );
       }
     );
     
 
-    console.log("generating public cert");
-    command = "openssl req -x509 -new -batch -subj \"/commonName=" + cn + "\" -key " + prefix + "private.txt " + " -out " + prefix + "public.txt";  
-    console.log(command);
-    exec(command, 
-      function (error, stdout, stderr) {
-        console.log('stdout: ' + stdout);
-        console.log('stderr: ' + stderr);
-        if (error !== null) {
-          console.log('exec error: ' + error);
-        }
-      }
-    );
 
     // FINISHED HERE !!! CAN'T CRATE PUBLIC CERT. NEED TO PROVIDE CN VIA COMMAND LINE. 
 
