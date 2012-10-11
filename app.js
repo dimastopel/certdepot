@@ -1,7 +1,8 @@
 var express = require('express');
 var app = module.exports = express.createServer();
-app.mongoose = require('mongoose');
+//app.mongoose = require('mongoose');
 
+app.mongoose = null;
 var config = require('./config.js')(app, express);
 
 var models = {};

@@ -24,7 +24,7 @@ module.exports = function(app, models, mongoose){
       });
 
     });
-  });
+  //});
   
   
   /**
@@ -150,26 +150,6 @@ module.exports = function(app, models, mongoose){
     });
   });
 
-
-  /**
-   *  View
-   */
-  app.get('/view/:id', function(req, res){
-		
-    //get the example
-    models.examples.findById(req.params.id, function(err, doc){
-      
-      //render the view page
-      res.render('view.jade', {
-          locals: {
-            title: 'Node.js Express MVR Template',
-            page: 'view',
-            example: doc
-          }
-      });
-
-    });
-  });
 
   /**
    *  Add View
