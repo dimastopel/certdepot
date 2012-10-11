@@ -5,7 +5,7 @@ app.mongoose = require('mongoose');
 var config = require('./config.js')(app, express);
 
 var models = {};
-models.examples = require('./models/example')(app.mongoose);
+//models.examples = require('./models/example')(app.mongoose);
 
 require('./routes')(app, models, app.mongoose);
 

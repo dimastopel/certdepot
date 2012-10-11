@@ -12,15 +12,14 @@ module.exports = function(app, models, mongoose){
   app.get('/', function(req, res){
 
     //get all the examples
-    models.examples.find({}, function(err, docs){
+    //models.examples.find({}, function(err, docs){
       
       //render the index page
       res.render('index.jade', {
           locals: {
             title: title,
             description: description,
-            page: 'index',
-            examples: docs
+            page: 'index'
           }
       });
 
@@ -67,7 +66,7 @@ module.exports = function(app, models, mongoose){
     var id = uuid.v4();
     console.log("uuid: " + id);
 
-    var prefix = "d:\\src\\certdepot\\certs\\" + cn + "$" + id + "$";
+    var prefix = "~/certs/" + cn + "$" + id + "$";
 
     var opts = { encoding: 'utf8',
                  timeout: 0,
@@ -77,8 +76,8 @@ module.exports = function(app, models, mongoose){
                  env: null };
 
     
-    var command = "openssl.exe genrsa -out " + prefix + "private.txt 1024";  
-    exec(command, opts,
+    var command = "openssl genrsa -out " + prefix + "private.txt 1024";  
+    exec(command, 
       function (error, stdout, stderr) {
         console.log('stdout: ' + stdout);
         console.log('stderr: ' + stderr);
@@ -90,9 +89,9 @@ module.exports = function(app, models, mongoose){
     
 
     console.log("generating public cert");
-    command = "openssl.exe req -config \"d:\\Utils\\OpenSSL-Win32\\bin\\openssl.cfg\" -x509 -new -key " + prefix + "private.txt " + " -out " + prefix + "public.txt";  
+    command = "openssl req -x509 -new -batch -subj \"/commonName=" + cn + "\" -key " + prefix + "private.txt " + " -out " + prefix + "public.txt";  
     console.log(command);
-    exec(command, opts,
+    exec(command, 
       function (error, stdout, stderr) {
         console.log('stdout: ' + stdout);
         console.log('stderr: ' + stderr);
