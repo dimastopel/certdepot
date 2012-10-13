@@ -146,12 +146,11 @@ module.exports = function(app, models, mongoose){
     if (cn === "")
     {
       console.log("Error: CN is empty. Doing nothing.");
-      req.send(400, 'A valid Common Name must be provided.');
+      res.send(400, 'A valid Common Name must be provided.');
     }
 
 
-    var id = uuid.v4();
-    console.log("uuid: " + id);
+    console.log("id: " + id);
 
     var prefix = "~/certs/" + cn + "--" + id + "--";
 
@@ -171,7 +170,7 @@ module.exports = function(app, models, mongoose){
         console.log('stderr: ' + stderr);
         if (error !== null) {
           console.log('exec error: ' + error);
-          req.send(500, 'Failed to generate private key: ' + error);
+          res.send(500, 'Failed to generate private key: ' + error);
         }
       
         console.log("generating public cert");
@@ -183,14 +182,14 @@ module.exports = function(app, models, mongoose){
             console.log('stderr: ' + stderr);
             if (error !== null) {
               console.log('exec error: ' + error);
-              req.send(500, 'Failed to generate public certificate: ' + error);
+              res.send(500, 'Failed to generate public certificate: ' + error);
             }
           }
         );
       }
     );
 
-    req.send('Successfully created certificate for id: ' + id);
+    res.send('Successfully created certificate for id: ' + id);
   });
 
 
