@@ -147,6 +147,7 @@ module.exports = function(app, models, mongoose){
     {
       console.log("Error: CN is empty. Doing nothing.");
       res.send(400, 'A valid Common Name must be provided.');
+      return;
     }
 
 
@@ -171,6 +172,7 @@ module.exports = function(app, models, mongoose){
         if (error !== null) {
           console.log('exec error: ' + error);
           res.send(500, 'Failed to generate private key: ' + error);
+          return;
         }
       
         console.log("generating public cert");
@@ -183,6 +185,7 @@ module.exports = function(app, models, mongoose){
             if (error !== null) {
               console.log('exec error: ' + error);
               res.send(500, 'Failed to generate public certificate: ' + error);
+              return;
             }
           }
         );
