@@ -135,18 +135,18 @@ module.exports = function(app, models, mongoose){
   /**
    *  Create cert
    */
-  app.post('/create/id/:certid/type/:certtype', function(req, res){
+  app.post('/create/id/:certid/type/:certtype', function(req, res, next){
     //create the cert for a given id
     var id = req.params.certid;
     var type = req.params.certtype;
     var cn = req.body.cn;
 
     // get other cert info
-
+    console.log("body: " + JSON.stringify(req.body));
     if (!cn || cn === "")
     {
       console.log("Error: CN is empty. Doing nothing.");
-      res.send(400, 'A valid Common Name must be provided.');
+      res.send(400, {error: "Common Name can't be empty"});
       return;
     }
 
@@ -171,7 +171,7 @@ module.exports = function(app, models, mongoose){
         console.log('stderr: ' + stderr);
         if (error !== null) {
           console.log('exec error: ' + error);
-          res.send(500, 'Failed to generate private key: ' + error);
+          res.send(500, {error: 'Failed to generate private key: ' + error});
           return;
         }
       
@@ -184,7 +184,7 @@ module.exports = function(app, models, mongoose){
             console.log('stderr: ' + stderr);
             if (error !== null) {
               console.log('exec error: ' + error);
-              res.send(500, 'Failed to generate public certificate: ' + error);
+              res.send(500, {error: 'Failed to generate public certificate: ' + error});
               return;
             }
           }
