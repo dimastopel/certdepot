@@ -153,7 +153,7 @@ module.exports = function(app, models, mongoose){
 
     console.log("id: " + id + ", cn: " + cn);
 
-    var prefix = "~/certs/" + cn + "--" + id + "--";
+    var prefix = "~/certs/" + encodeURIComponent(cn) + "--" + id + "--";
 
     /*
     var opts = { encoding: 'utf8',
