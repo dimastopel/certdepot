@@ -133,23 +133,14 @@ module.exports = function(app, models, mongoose){
   });
 
   /**
-   *  Listing
+   *  Create cert
    */
-  app.get('/list', function(req, res){
+  app.post('/create/id/:certid/type/:certtype', function(req, res){
+    //create the cert for a given id
+    var id = req.params.certid;
+    var type = req.params.certtype;
 
-    //get all the examples
-    models.examples.find({}, function(err, docs){
-      
-      //render the index page
-      res.render('list.jade', {
-          locals: {
-            title: 'Node.js Express MVR Template',
-            page: 'list',
-            examples: docs
-          }
-      });
 
-    });
   });
 
 
