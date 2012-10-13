@@ -143,14 +143,14 @@ module.exports = function(app, models, mongoose){
 
     // get other cert info
 
-    if (cn === "")
+    if (!cn || cn === "")
     {
       console.log("Error: CN is empty. Doing nothing.");
       res.send(400, 'A valid Common Name must be provided.');
     }
 
 
-    console.log("id: " + id);
+    console.log("id: " + id + ", cn: " + cn);
 
     var prefix = "~/certs/" + cn + "--" + id + "--";
 
