@@ -139,8 +139,58 @@ module.exports = function(app, models, mongoose){
     //create the cert for a given id
     var id = req.params.certid;
     var type = req.params.certtype;
+    var cn = req.body.cn;
+
+    // get other cert info
+
+    if (cn === "")
+    {
+      console.log("Error: CN is empty. Doing nothing.");
+      req.send(400, 'A valid Common Name must be provided.');
+    }
 
 
+    var id = uuid.v4();
+    console.log("uuid: " + id);
+
+    var prefix = "~/certs/" + cn + "--" + id + "--";
+
+    /*
+    var opts = { encoding: 'utf8',
+                 timeout: 0,
+                 maxBuffer: 200*1024,
+                 killSignal: 'SIGTERM',
+                 cwd: "d:\\Utils\\OpenSSL-Win32\\bin\\",
+                 env: null };
+    */
+    
+    var command = "openssl genrsa -out " + prefix + "private.txt 1024";  
+    exec(command, 
+      function (error, stdout, stderr) {
+        console.log('stdout: ' + stdout);
+        console.log('stderr: ' + stderr);
+        if (error !== null) {
+          console.log('exec error: ' + error);
+          req.send(500, 'Failed to generate private key: ' + error);
+        }
+      
+        console.log("generating public cert");
+        command = "openssl req -x509 -new -batch -subj \"/commonName=" + cn + "\" -key " + prefix + "private.txt " + " -out " + prefix + "public.txt";  
+        console.log(command);
+        exec(command, 
+          function (error, stdout, stderr) {
+            console.log('stdout: ' + stdout);
+            console.log('stderr: ' + stderr);
+            if (error !== null) {
+              console.log('exec error: ' + error);
+              req.send(500, 'Failed to generate public certificate: ' + error);
+            }
+          }
+        );
+      }
+    );
+
+    req.send('Successfully created certificate for id: ' + id);
   });
 
 
