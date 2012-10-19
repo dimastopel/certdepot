@@ -187,6 +187,21 @@ module.exports = function(app, models, mongoose){
               res.send(500, {error: 'Failed to generate public certificate: ' + error});
               return;
             }
+
+            console.log("creating pfx");
+            command = "openssl pkcs12 -export -inkey " + prefix + "private.txt " + " -out " + prefix + ".pfx" + " -in "+ prefix + "public.txt -password pass:qwerty";  
+            console.log(command);
+            exec(command, 
+              function (error, stdout, stderr) {
+                console.log('stdout: ' + stdout);
+                console.log('stderr: ' + stderr);
+                if (error !== null) {
+                  console.log('exec error: ' + error);
+                  res.send(500, {error: 'Failed to create pfx: ' + error});
+                  return;
+                }
+              }
+            );
           }
         );
       }
