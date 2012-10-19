@@ -2,25 +2,6 @@ div#hero.hero-unit
     h1 #{title}
     p #{description}
 
-
-script
-  function switchToFillInfo()
-  {
-    var common_name = document.getElementById('cnStart').value;
-    document.getElementById('cnInfo').value = common_name;
-    
-    $('#start').hide();
-    $('#hero').hide();
-    $('#fillinfo').show();
-  }
-  function switchToDownload()
-  {
-    //$('#start').hide();
-    //$('#hero').hide();
-    $('#fillinfo').hide();
-    $('#download').show();
-  }
-
 div#start.row
   div.span12
     form(name='form-entercn', method='POST', action='javascript:void(0);').form-horizontal
@@ -33,13 +14,18 @@ div#start.row
             input(name='cn', type='text', placeholder="Enter Certificate's Common Name here")#cnStart.span8
             button(onclick='switchToFillInfo()').btn.btn-primary Get Certificate!
 
+
+
+- var attributeNames = ["days", "county", "state", "city", "org", "orgUnit", "cnInfo", "email"]
+- var attributeValues = ["365", "US", "Some-State", "", "Internet Widgits Pty Ltd", "", "", ""]
+
 div#fillinfo.container.hide
   div.page-header
       h1 Please fill certificate information
           small  (optional)
   div.row
     div.span12
-      form(name='form-fillinfo', method='POST', action='javascript:void(0);').form-horizontal
+      form(id='form-fillinfo', method='POST', action='javascript:void(0);').form-horizontal
         //legend Please fill additional certificate information \(optional\)
         - var names = ["days", "country", "state", "city", "org", "org_unit", "cnInfo", "email"];
         - var labels = [];
@@ -51,6 +37,7 @@ div#fillinfo.container.hide
         - labels[5] = "Organizational Unit Name (eg, section)";
         - labels[6] = "Common Name (eg, YOUR name)";
         - labels[7] = "Email Address";
+
         - var values = [];
         - values[0] = "365";
         - values[1] = "US";
@@ -60,11 +47,12 @@ div#fillinfo.container.hide
         - values[5] = "";
         - values[6] = "";
         - values[7] = "";
+
         each name, i in names
           label #{labels[i]}
           input(id=name, type='text', value='#{values[i]}').input-xxlarge
         span.help-block
-        button(onclick='switchToDownload()').btn.btn-primary.offset5 To the Final Step
+        button(onclick='switchToDownload()').btn.btn-primary.offset5 Submit
 
 div#download.container.hide
   div.page-header
@@ -79,3 +67,65 @@ div#download.container.hide
             button(type='submit').btn.btn-info Download KEY + PEM Zip
           td 
             button(type='submit').btn.btn-info Download PFX
+
+script
+  /*
+  $.fn.serializeObject = function()
+  {
+      var o = {};
+      var a = this.serializeArray();
+      $.each(a, function() {
+          if (o[this.name] !== undefined) {
+              if (!o[this.name].push) {
+                  o[this.name] = [o[this.name]];
+              }
+              o[this.name].push(this.value || '');
+          } else {
+              o[this.name] = this.value || '';
+          }
+      });
+      return o;
+  };
+  */  
+  function genId() {
+    var result='';
+    for(var i=0; i<32; i++) {
+      result += Math.floor(Math.random()*16).toString(16).toUpperCase();
+    }
+    return result;
+  }
+  function switchToFillInfo()  {
+    var common_name = document.getElementById('cnStart').value;
+    document.getElementById('cnInfo').value = common_name;
+    
+    $('#start').hide();
+    $('#hero').hide();
+    $('#fillinfo').show();
+  }
+  function switchToDownload()  {
+    //$('#start').hide();
+    //$('#hero').hide();
+    
+    var certData = {};
+    $("#form-fillinfo input[type=text]").each(function() {
+      console.log($(this).attr('id') + ' - ' + $(this).val());
+      certData[$(this).attr('id')] = $(this).val();
+    });
+
+    var certId = genId();
+
+    console.log(certId);
+    console.log(JSON.stringify(certData));
+
+    $.ajax({
+      type: 'POST',
+      url: "http://192.168.0.107:3000/create/id/" + certId + "/type/aaa",
+      data: $('#form-fillinfo').serialize(),
+      success: function() {
+        console.log('success!');
+      },
+    });
+    
+    $('#fillinfo').hide();
+    $('#download').show();
+  }

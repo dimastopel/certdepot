@@ -142,7 +142,6 @@ module.exports = function(app, models, mongoose){
     var cn = req.body.cn;
 
     // get other cert info
-    console.log("body: " + JSON.stringify(req.body));
     if (!cn || cn === "")
     {
       console.log("Error: CN is empty. Doing nothing.");
@@ -151,9 +150,12 @@ module.exports = function(app, models, mongoose){
     }
 
 
-    console.log("id: " + id + ", cn: " + cn);
+    //console.log("id: " + id + ", cn: " + cn);
 
     var prefix = "~/certs/" + encodeURIComponent(cn) + "--" + id + "--";
+    var privateCertName = prefix + "private.pem";
+    var publicCertName = prefix + "public.pem";
+    var pfxCertName = prefix + "pfx.pfx";
 
     /*
     var opts = { encoding: 'utf8',
@@ -163,43 +165,47 @@ module.exports = function(app, models, mongoose){
                  cwd: "d:\\Utils\\OpenSSL-Win32\\bin\\",
                  env: null };
     */
+
+
     
-    var command = "openssl genrsa -out " + prefix + "private.txt 1024";  
+    var command = "openssl genrsa -out " + privateCertName + " 1024";  
     exec(command, 
       function (error, stdout, stderr) {
-        console.log('stdout: ' + stdout);
-        console.log('stderr: ' + stderr);
+        //console.log('stdout: ' + stdout);
+        //console.log('stderr: ' + stderr);
         if (error !== null) {
           console.log('exec error: ' + error);
           res.send(500, {error: 'Failed to generate private key: ' + error});
           return;
         }
       
-        console.log("generating public cert");
-        command = "openssl req -x509 -new -batch -subj \"/commonName=" + cn + "\" -key " + prefix + "private.txt " + " -out " + prefix + "public.txt";  
-        console.log(command);
+        //console.log("generating public cert");
+        command = "openssl req -x509 -new -batch -subj \"/commonName=" + cn + "\" -key " + privateCertName + " -out " + publicCertName;  
+        //console.log(command);
         exec(command, 
           function (error, stdout, stderr) {
-            console.log('stdout: ' + stdout);
-            console.log('stderr: ' + stderr);
+            //console.log('stdout: ' + stdout);
+            //console.log('stderr: ' + stderr);
             if (error !== null) {
               console.log('exec error: ' + error);
               res.send(500, {error: 'Failed to generate public certificate: ' + error});
               return;
             }
 
-            console.log("creating pfx");
-            command = "openssl pkcs12 -export -inkey " + prefix + "private.txt " + " -out " + prefix + ".pfx" + " -in "+ prefix + "public.txt -password pass:qwerty";  
-            console.log(command);
+            //console.log("creating pfx");
+            command = "openssl pkcs12 -export -inkey " + privateCertName + " -out " + pfxCertName + " -in " + publicCertName + " -password pass:qwerty";  
+            //console.log(command);
             exec(command, 
               function (error, stdout, stderr) {
-                console.log('stdout: ' + stdout);
-                console.log('stderr: ' + stderr);
+                //console.log('stdout: ' + stdout);
+                //console.log('stderr: ' + stderr);
                 if (error !== null) {
                   console.log('exec error: ' + error);
                   res.send(500, {error: 'Failed to create pfx: ' + error});
                   return;
                 }
+
+                console.log('Successfully generated certs for CN: ' + cn);
               }
             );
           }
