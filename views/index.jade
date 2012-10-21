@@ -107,6 +107,7 @@ script
       type: 'POST',
       url: "/create",
       data: JSON.stringify(certData),
+      contentType: 'application/json',
       success: function(data) {
         var result = JSON.parse(data);
         if (!result.id || result.id === "")
