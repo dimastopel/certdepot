@@ -238,6 +238,7 @@ module.exports = function(app, models, mongoose){
     if (type === "zip") {
 
       if (!fs.existsSync(names.zip)) {
+        console.warn('can not find: ' + names.zip);
         res.send(404, {error: 'Can not find cert for id/type: ' + id + "/" + type});
         return;
       }
@@ -252,6 +253,7 @@ module.exports = function(app, models, mongoose){
     } else if (type === "pfx") {
 
       if (!fs.existsSync(names.pfx)) {
+        console.warn('can not find: ' + names.pfx);
         res.send(404, {error: 'Can not find cert for id/type: ' + id + "/" + type});
         return;
       }
