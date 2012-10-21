@@ -132,14 +132,25 @@ module.exports = function(app, models, mongoose){
     });
   });
 
+
+  function getCertNames(id)
+  {
+    var prefix = "~/certs/" + id + ".";
+    var names = {};
+
+    names.private = prefix + "private.pem";
+    names.public = prefix + "public.pem";
+    names.pfx = prefix + "pfx";
+    names.zip = prefix + "private_public.zip";
+
+    return names;
+  }
+
   /**
    *  Create cert
    */
-  app.post('/create/id/:certid/type/:certtype', function(req, res, next){
+  app.post('/create', function(req, res, next) {
     //create the cert for a given id
-    //var id = req.params.certid;
-    var id = uuid.v4();
-    var type = req.params.certtype;
     var cn = req.body.cn;
 
     // get other cert info
@@ -150,13 +161,12 @@ module.exports = function(app, models, mongoose){
       return;
     }
 
-
-    //console.log("id: " + id + ", cn: " + cn);
-
-    var prefix = "~/certs/" + encodeURIComponent(cn) + "--" + id + "--";
-    var privateCertName = prefix + "private.pem";
-    var publicCertName = prefix + "public.pem";
-    var pfxCertName = prefix + "pfx.pfx";
+    //var prefix = "~/certs/" + encodeURIComponent(cn) + "--" + id + "--";
+    //var privateCertName = prefix + "private.pem";
+    //var publicCertName = prefix + "public.pem";
+    //var pfxCertName = prefix + "pfx.pfx";
+    var id = uuid.v4();
+    var names = getCertNames(id);
 
     /*
     var opts = { encoding: 'utf8',
@@ -166,40 +176,28 @@ module.exports = function(app, models, mongoose){
                  cwd: "d:\\Utils\\OpenSSL-Win32\\bin\\",
                  env: null };
     */
-
-
     
-    var command = "openssl genrsa -out " + privateCertName + " 1024";  
+    var command = "openssl genrsa -out " + names.private + " 1024";  
     exec(command, 
       function (error, stdout, stderr) {
-        //console.log('stdout: ' + stdout);
-        //console.log('stderr: ' + stderr);
         if (error !== null) {
           console.log('exec error: ' + error);
           res.send(500, {error: 'Failed to generate private key: ' + error});
           return;
         }
       
-        //console.log("generating public cert");
-        command = "openssl req -x509 -new -batch -subj \"/commonName=" + cn + "\" -key " + privateCertName + " -out " + publicCertName;  
-        //console.log(command);
+        command = "openssl req -x509 -new -batch -subj \"/commonName=" + cn + "\" -key " + names.private + " -out " + names.public;  
         exec(command, 
           function (error, stdout, stderr) {
-            //console.log('stdout: ' + stdout);
-            //console.log('stderr: ' + stderr);
             if (error !== null) {
               console.log('exec error: ' + error);
               res.send(500, {error: 'Failed to generate public certificate: ' + error});
               return;
             }
 
-            //console.log("creating pfx");
-            command = "openssl pkcs12 -export -inkey " + privateCertName + " -out " + pfxCertName + " -in " + publicCertName + " -password pass:qwerty";  
-            //console.log(command);
+            command = "openssl pkcs12 -export -inkey " + names.private + " -out " + names.pfx + " -in " + names.public + " -password pass:qwerty";  
             exec(command, 
               function (error, stdout, stderr) {
-                //console.log('stdout: ' + stdout);
-                //console.log('stderr: ' + stderr);
                 if (error !== null) {
                   console.log('exec error: ' + error);
                   res.send(500, {error: 'Failed to create pfx: ' + error});
@@ -218,21 +216,14 @@ module.exports = function(app, models, mongoose){
     res.send({id:id});
   });
 
+  app.post('/getcert/id/:certId/type/:certType', function(req, res, next) {
+    var id = req.params.certId;
+    var type = req.params.certType;
 
-  /**
-   *  Add View
-   */
-  app.get('/add', function(req, res){
 
-      //render the add page
-      res.render('add.jade', {
-          locals: {
-            title: 'Node.js Express MVR Template',
-            page: 'add'
-          }
-      });
-  });
-  
+  }
+
+
   /**
    *  Add test doc
    */
