@@ -204,7 +204,18 @@ module.exports = function(app, models, mongoose){
                   return;
                 }
 
-                console.log('Successfully generated certs for CN: ' + cn + ' ID:' + id);
+                command = "zip -9 " + names.zip + " " + names.private + " " names.public;  
+                exec(command, 
+                  function (error, stdout, stderr) {
+                    if (error !== null) {
+                      console.log('exec error: ' + error);
+                      res.send(500, {error: 'Failed to create ZIP archive: ' + error});
+                      return;
+                    }
+
+                    console.log('Successfully generated certs for CN: ' + cn + ' ID:' + id);
+                  }
+                );
               }
             );
           }
