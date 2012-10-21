@@ -136,7 +136,7 @@ module.exports = function(app, models, mongoose){
 
   function getCertNames(id)
   {
-    var prefix = "~/certs/" + id + ".";
+    var prefix = "/home/dima/certs/" + id + ".";
     var names = {};
 
     names.private = prefix + "private.pem";
