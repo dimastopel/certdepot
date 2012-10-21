@@ -141,8 +141,12 @@ module.exports = function(app, models, mongoose){
 
     names.private = prefix + "private.pem";
     names.public = prefix + "public.pem";
+    names.private_nodir = id + "." + "private.pem";
+    names.public_nodir = id + "." + "public.pem";
     names.pfx = prefix + "pfx";
     names.zip = prefix + "private_public.zip";
+    names.pfx_nodir = id + "." + "pfx";
+    names.zip_nodir = id + "." + "private_public.zip";
 
     return names;
   }
@@ -205,7 +209,7 @@ module.exports = function(app, models, mongoose){
                   return;
                 }
 
-                command = "bash ~/github/certdepot/createZip.sh " + names.zip + " " + names.private + " " + names.public;  
+                command = "bash ~/github/certdepot/createZip.sh " + names.zip_nodir + " " + names.private_nodir + " " + names.public_nodir;  
                 exec(command, 
                   function (error, stdout, stderr) {
                     if (error !== null) {
