@@ -16,7 +16,7 @@ div#start.row
 
 
 
-- var attributeNames = ["days", "county", "state", "city", "org", "orgUnit", "cnInfo", "email"]
+- var attributeNames = ["days", "county", "state", "city", "org", "orgUnit", "cn", "email"]
 - var attributeValues = ["365", "US", "Some-State", "", "Internet Widgits Pty Ltd", "", "", ""]
 
 div#fillinfo.container.hide
@@ -27,7 +27,7 @@ div#fillinfo.container.hide
     div.span12
       form(id='form-fillinfo', method='POST', action='javascript:void(0);').form-horizontal
         //legend Please fill additional certificate information \(optional\)
-        - var names = ["days", "country", "state", "city", "org", "org_unit", "cnInfo", "email"];
+        - var names = ["days", "country", "state", "city", "org", "org_unit", "cn", "email"];
         - var labels = [];
         - labels[0] = "Validity period (in days)";
         - labels[1] = "Country Name (2 letter code)";
@@ -106,7 +106,7 @@ script
     $.ajax({
       type: 'POST',
       url: "/create",
-      data: $('#form-fillinfo').serialize(),
+      data: JSON.stringify(certData),
       success: function(data) {
         var result = JSON.parse(data);
         if (!result.id || result.id === "")
