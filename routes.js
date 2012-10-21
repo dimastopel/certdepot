@@ -204,7 +204,7 @@ module.exports = function(app, models, mongoose){
                   return;
                 }
 
-                command = "zip -9 " + names.zip + " " + names.private + " " names.public;  
+                command = "zip -9 " + names.zip + " " + names.private + " " + names.public;  
                 exec(command, 
                   function (error, stdout, stderr) {
                     if (error !== null) {
