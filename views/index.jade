@@ -109,14 +109,15 @@ script
       data: JSON.stringify(certData),
       contentType: 'application/json',
       success: function(data) {
-        var result = {};
-        console.log('data:' + data);
-        try {
-          result = JSON.parse(data);
-        } catch(err) {
-          console.error('Can not parse data: ' + err);
-          return;
-        }
+        var result = data;;
+        
+        //console.log('data:' + data);
+        //try {
+        //  result = JSON.parse(data);
+        //} catch(err) {
+        //  console.error('Can not parse data: ' + err);
+        //  return;
+        //}
 
         if (!result.id || result.id === "")
         {
