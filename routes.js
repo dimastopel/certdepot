@@ -221,7 +221,7 @@ module.exports = function(app, models, mongoose){
     var type = req.params.certType;
 
 
-  }
+  });
 
 
   /**
