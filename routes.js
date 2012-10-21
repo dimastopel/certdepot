@@ -137,7 +137,8 @@ module.exports = function(app, models, mongoose){
    */
   app.post('/create/id/:certid/type/:certtype', function(req, res, next){
     //create the cert for a given id
-    var id = req.params.certid;
+    //var id = req.params.certid;
+    var id = uuid.v4();
     var type = req.params.certtype;
     var cn = req.body.cn;
 
@@ -205,7 +206,7 @@ module.exports = function(app, models, mongoose){
                   return;
                 }
 
-                console.log('Successfully generated certs for CN: ' + cn);
+                console.log('Successfully generated certs for CN: ' + cn + ' ID:' + id);
               }
             );
           }
@@ -213,7 +214,8 @@ module.exports = function(app, models, mongoose){
       }
     );
 
-    res.send('Successfully created certificate for id: ' + id);
+    res.set('Content-Type', 'application/json');
+    res.send({id:id});
   });
 
 

@@ -69,24 +69,6 @@ div#download.container.hide
             button(type='submit').btn.btn-info Download PFX
 
 script
-  /*
-  $.fn.serializeObject = function()
-  {
-      var o = {};
-      var a = this.serializeArray();
-      $.each(a, function() {
-          if (o[this.name] !== undefined) {
-              if (!o[this.name].push) {
-                  o[this.name] = [o[this.name]];
-              }
-              o[this.name].push(this.value || '');
-          } else {
-              o[this.name] = this.value || '';
-          }
-      });
-      return o;
-  };
-  */  
   function genId() {
     var result='';
     for(var i=0; i<32; i++) {
