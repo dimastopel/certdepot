@@ -236,7 +236,7 @@ module.exports = function(app, models, mongoose){
     if (type === "zip") {
 
       if (!fs.existsSync(names.zip)) {
-        res.send(404, {error: 'Can not find cert for id/type: ' + id "/" + type});
+        res.send(404, {error: 'Can not find cert for id/type: ' + id + "/" + type});
       }
 
 
@@ -249,7 +249,7 @@ module.exports = function(app, models, mongoose){
     } else if (type === "pfx") {
 
       if (!fs.existsSync(names.pfx)) {
-        res.send(404, {error: 'Can not find cert for id/type: ' + id "/" + type});
+        res.send(404, {error: 'Can not find cert for id/type: ' + id + "/" + type});
       }
 
       res.download(names.pfx, names.pfx, function(err) {
