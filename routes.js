@@ -233,10 +233,13 @@ module.exports = function(app, models, mongoose){
     var type = req.params.certType;
     var names = getCertNames(id);
 
+    console.log(JSON.stringify(names));
+
     if (type === "zip") {
 
       if (!fs.existsSync(names.zip)) {
         res.send(404, {error: 'Can not find cert for id/type: ' + id + "/" + type});
+        return;
       }
 
 
@@ -250,6 +253,7 @@ module.exports = function(app, models, mongoose){
 
       if (!fs.existsSync(names.pfx)) {
         res.send(404, {error: 'Can not find cert for id/type: ' + id + "/" + type});
+        return;
       }
 
       res.download(names.pfx, names.pfx, function(err) {
@@ -262,9 +266,6 @@ module.exports = function(app, models, mongoose){
       console.warn('Invalid type was sent: ' + type);
       res.send(400, {error: 'Can not return cert for this type: ' + type});
     }
-
-
-
   });
 
 
