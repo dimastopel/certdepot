@@ -228,7 +228,7 @@ module.exports = function(app, models, mongoose){
     res.send({id:id});
   });
 
-  app.post('/getcert/id/:certId/type/:certType', function(req, res, next) {
+  app.get('/getcert/id/:certId/type/:certType', function(req, res, next) {
     var id = req.params.certId;
     var type = req.params.certType;
     var names = getCertNames(id);
