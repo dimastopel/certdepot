@@ -214,7 +214,7 @@ module.exports = function(app, models, mongoose){
       }
     );
 
-    res.set('Content-Type', 'application/json');
+    res.header('Content-Type', 'application/json');
     res.send({id:id});
   });
 
