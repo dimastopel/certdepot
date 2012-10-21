@@ -52,7 +52,7 @@ div#fillinfo.container.hide
           label #{labels[i]}
           input(id=name, type='text', value='#{values[i]}').input-xxlarge
         span.help-block
-        button(onclick='switchToDownload()').btn.btn-primary.offset5 Submit
+        button(id='button-submit', onclick='switchToDownload()', data-loading-text="Generating...").btn.btn-primary.offset5 Submit
 
 div#download.container.hide
   div.page-header
@@ -64,9 +64,11 @@ div#download.container.hide
           td 
             strong Self Signed Certificate
           td 
-            button(type='submit').btn.btn-info Download KEY + PEM Zip
+            form(id='form-getzip', action='')
+              button(type='submit').btn.btn-info Download KEY + PEM Zip
           td 
-            button(type='submit').btn.btn-info Download PFX
+            form(id='form-getpfx', action='')
+              button(type='submit').btn.btn-info Download PFX
 
 script
   function genId() {
@@ -99,15 +101,33 @@ script
     console.log(certId);
     console.log(JSON.stringify(certData));
 
+    $('#button-submit').button('loading');
+
     $.ajax({
       type: 'POST',
-      url: "http://192.168.0.107:3000/create/id/" + certId + "/type/aaa",
+      url: "/create",
       data: $('#form-fillinfo').serialize(),
-      success: function() {
-        console.log('success!');
+      success: function(data) {
+        var result = JSON.parse(data);
+        if (!result.id || result.id === "")
+        {
+          console.error('Did not got cert Id. Can not continue');
+          return;
+        }
+        
+        console.log('success! Id:' + result.id);
+
+        $('#form-getzip').attr('action', '/getcert/id/' + result.id + '/type/zip');
+        $('#form-getpfx').attr('action', '/getcert/id/' + result.id + '/type/pfx');
+
+        completeSwitchToDownload();
       },
     });
     
+  }
+
+  function completeSwitchToDownload() {
     $('#fillinfo').hide();
     $('#download').show();
+
   }
