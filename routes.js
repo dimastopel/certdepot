@@ -205,7 +205,7 @@ module.exports = function(app, models, mongoose){
                   return;
                 }
 
-                command = "bash ~/home/dima/github/certdepot/createZip.sh " + names.zip + " " + names.private + " " + names.public;  
+                command = "bash ~/github/certdepot/createZip.sh " + names.zip + " " + names.private + " " + names.public;  
                 exec(command, 
                   function (error, stdout, stderr) {
                     if (error !== null) {
