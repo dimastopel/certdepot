@@ -1,5 +1,6 @@
 var exec = require('child_process').exec;
 var uuid = require('node-uuid');
+var fs = require('fs');
 
 module.exports = function(app, models, mongoose){
 
@@ -230,6 +231,38 @@ module.exports = function(app, models, mongoose){
   app.post('/getcert/id/:certId/type/:certType', function(req, res, next) {
     var id = req.params.certId;
     var type = req.params.certType;
+    var names = getCertNames(id);
+
+    if (type === "zip") {
+
+      if (!fs.existsSync(names.zip)) {
+        res.send(404, {error: 'Can not find cert for id/type: ' + id "/" + type});
+      }
+
+
+      res.download(names.zip, names.zip, function(err) {
+        if (err) {
+          console.error('Can not return zip: ' + err);
+        }
+      });
+
+    } else if (type === "pfx") {
+
+      if (!fs.existsSync(names.pfx)) {
+        res.send(404, {error: 'Can not find cert for id/type: ' + id "/" + type});
+      }
+
+      res.download(names.pfx, names.pfx, function(err) {
+        if (err) {
+          console.error('Can not return pfx: ' + err);
+        }
+      });
+
+    } else {
+      console.warn('Invalid type was sent: ' + type);
+      res.send(400, {error: 'Can not return cert for this type: ' + type});
+    }
+
 
 
   });
