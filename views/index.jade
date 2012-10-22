@@ -5,7 +5,7 @@ div#hero.hero-unit
 div#start.row
   div.span12
     form(name='form-entercn', method='POST', action='javascript:void(0);').form-horizontal
-      div.control-group
+      div.control-group#cg-cn
         label(for='cn').control-label
           | Enter 
           strong Common Name: 
@@ -81,6 +81,15 @@ script
   function switchToFillInfo()  {
     var common_name = document.getElementById('cnStart').value;
     document.getElementById('cn').value = common_name;
+
+    if (!common_name || common_name === "") {
+      $('#cg-cn').addClass('error');
+      $('#cnStart').attr('placeholder', "Enter Certificate's Common Name here (Must Not Be Empty)");
+      //$("#cg-cn").hide().fadeIn('fast');
+
+      return;
+    }
+
     
     $('#start').hide();
     $('#hero').hide();
@@ -135,7 +144,6 @@ script
     });
     
   }
-
   function completeSwitchToDownload() {
     $('#fillinfo').hide();
     $('#download').show();
