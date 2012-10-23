@@ -34,13 +34,15 @@ div#fillinfo.container.hide
   div.row
     div.span12
       form(id='form-fillinfo', method='POST', action='javascript:void(0);').form-horizontal
-        each name, i in attributeNames
-          div.control-group
-            label(for=name).control-label #{attributeLabels[i]}
-            div.controls
-              input(id=name, type='text', value='#{attributeValues[i]}').input-xlarge
-        span.help-block
-        button(id='button-submit', onclick='switchToDownload()', data-loading-text="Generating...").btn.btn-primary.offset5 Submit
+        fieldset
+          each name, i in attributeNames
+            div.control-group
+              label(for=name).control-label #{attributeLabels[i]}
+              div.controls
+                input(id=name, name=name, type='text', value='#{attributeValues[i]}').input-xlarge
+          //span.help-block
+          div.form-actions
+            button(id='button-submit', onclick='switchToDownload()', data-loading-text="Generating...").btn.btn-primary.offset5 Submit
 
 div#download.container.hide
   div.page-header
@@ -73,8 +75,6 @@ script
     if (!common_name || common_name === "") {
       $('#cg-cn').addClass('error');
       $('#cnStart').attr('placeholder', "Enter Certificate's Common Name here (Must Not Be Empty)");
-      //$("#cg-cn").hide().fadeIn('fast');
-
       return;
     }
 
@@ -83,29 +83,67 @@ script
     $('#hero').hide();
     $('#fillinfo').show();
 
-
-    $('#form-fillinfo').validate(
-    {
-    rules: {
-      days: {
-        minlength: 2,
-        required: true
-      }
-    },
-    highlight: function(label) {
-      $(label).closest('.control-group').addClass('error');
-    },
-    success: function(label) {
-      label
-        .text('OK!').addClass('valid')
-        .closest('.control-group').addClass('success');
-    }
+    $('#form-fillinfo').validate({
+        rules: {
+          days: {
+            minlength: 1,
+            required: true,
+            digits: true
+          },
+          county: {
+            minlength: 2,
+            maxlength: 2,
+            required: true
+          },
+          state: {
+            minlength: 1,
+            required: true
+          },
+          city: {
+            required: false
+          },
+          org: {
+            minlength: 1,
+            required: true
+          },
+          orgUnit: {
+            required: false
+          },
+          cn: {
+            minlength: 1,
+            required: true
+          },
+          email: {
+            email: true,
+            required: false
+          },
+          "pfx_pwd": {
+            minlength: 5,
+            required: true
+          },
+        },
+        highlight: function(label) {
+          console.log('highlight');
+          //$(label).closest('.control-group').addClass('error');
+        },
+        success: function(label) {
+          console.log('success');
+          //$(label).closest.closest('.control-group').addClass('success');
+        }
     });
+    console.log('done');
   }
   function switchToDownload()  {
     //$('#start').hide();
     //$('#hero').hide();
-    
+
+    console.log("validity: " + $('#form-fillinfo').valid());
+    if (!$('#form-fillinfo').valid()) {
+      console.log('info form is not valid. returning...');
+      return;
+    }
+
+
     var certData = {};
     $("#form-fillinfo input[type=text]").each(function() {
       console.log($(this).attr('id') + ' - ' + $(this).val());
