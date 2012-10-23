@@ -14,7 +14,7 @@ div#start.row
             input(name='cn', type='text', placeholder="Enter Certificate's Common Name here")#cnStart.span8
             button(onclick='switchToFillInfo()').btn.btn-primary Get Certificate!
 
-- var attributeNames = ["days", "county", "state", "city", "org", "orgUnit", "cn", "email", "pfx_pwd"]
+- var attributeNames = ["days", "country", "state", "city", "org", "orgUnit", "cn", "email", "pfxPass"]
 - var attributeValues = ["365", "US", "Some-State", "", "Internet Widgits Pty Ltd", "", "", "", "password"]
 - var attributeLabels = [];
 - attributeLabels[0] = "Validity period (in days)";
@@ -90,7 +90,7 @@ script
             required: true,
             digits: true
           },
-          county: {
+          country: {
             minlength: 2,
             maxlength: 2,
             required: true
@@ -117,7 +117,7 @@ script
             email: true,
             required: false
           },
-          "pfx_pwd": {
+          pfxPass: {
             minlength: 5,
             required: true
           },

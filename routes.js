@@ -64,7 +64,15 @@ module.exports = function(app, models, mongoose){
    */
   app.post('/create', function(req, res, next) {
     //create the cert for a given id
-    var cn = req.body.cn;
+    var cn = req.body.cn; //
+    var days = req.body.days; //
+    var country = req.body.country;
+    var state = req.body.state;
+    var city = req.body.city;
+    var org = req.body.org;
+    var orgUnit = req.body.orgUnit;
+    var email = req.body.email;
+    var pfxPass = req.body.pfxPass; //
 
     // get other cert info
     if (!cn || cn === "")
@@ -99,7 +107,29 @@ module.exports = function(app, models, mongoose){
           return;
         }
       
-        command = "openssl req -x509 -new -batch -subj \"/commonName=" + cn + "\" -key " + names.private + " -out " + names.public;  
+        var subj = "/commonName=" + cn;
+        if (county && country != "") {
+          subj += "/C=" + country;
+        }
+        if (state && state != "") {
+          subj += "/ST=" + state;
+        }
+        if (city && city != "") {
+          subj += "/L=" + city;
+        }
+        if (org && org != "") {
+          subj += "/O=" + org;
+        }
+        if (orgUnit && orgUnit != "") {
+          subj += "/OU=" + orgUnit;
+        }
+        if (email && email != "") {
+          subj += "/emailAddress=" + email;
+        }
+
+        console.log("subj: " + subj);
+
+        command = "openssl req -x509 -new -batch -subj \"" + subj + "\" -key " + names.private + " -out " + names.public + " -days " + days;  
         exec(command, 
           function (error, stdout, stderr) {
             if (error !== null) {
@@ -108,7 +138,7 @@ module.exports = function(app, models, mongoose){
               return;
             }
 
-            command = "openssl pkcs12 -export -inkey " + names.private + " -out " + names.pfx + " -in " + names.public + " -password pass:qwerty";  
+            command = "openssl pkcs12 -export -inkey " + names.private + " -out " + names.pfx + " -in " + names.public + " -password pass:" + pfx_pwd;  
             exec(command, 
               function (error, stdout, stderr) {
                 if (error !== null) {
