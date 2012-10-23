@@ -34,11 +34,11 @@ div#fillinfo.container.hide
   div.row
     div.span12
       form(id='form-fillinfo', method='POST', action='javascript:void(0);').form-horizontal
-
-
         each name, i in attributeNames
-          label #{attributeLabels[i]}
-          input(id=name, type='text', value='#{attributeValues[i]}').input-xxlarge
+          div.control-group
+            label(for=name).control-label #{attributeLabels[i]}
+            div.controls
+              input(id=name, type='text', value='#{attributeValues[i]}').input-xlarge
         span.help-block
         button(id='button-submit', onclick='switchToDownload()', data-loading-text="Generating...").btn.btn-primary.offset5 Submit
 
@@ -82,6 +82,25 @@ script
     $('#start').hide();
     $('#hero').hide();
     $('#fillinfo').show();
+
+
+    $('#form-fillinfo').validate(
+    {
+    rules: {
+      days: {
+        minlength: 2,
+        required: true
+      }
+    },
+    highlight: function(label) {
+      $(label).closest('.control-group').addClass('error');
+    },
+    success: function(label) {
+      label
+        .text('OK!').addClass('valid')
+        .closest('.control-group').addClass('success');
+    }
+    });
   }
   function switchToDownload()  {
     //$('#start').hide();
