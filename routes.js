@@ -108,7 +108,7 @@ module.exports = function(app, models, mongoose){
         }
       
         var subj = "/commonName=" + cn;
-        if (county && country != "") {
+        if (country && country != "") {
           subj += "/C=" + country;
         }
         if (state && state != "") {
@@ -138,7 +138,11 @@ module.exports = function(app, models, mongoose){
               return;
             }
 
-            command = "openssl pkcs12 -export -inkey " + names.private + " -out " + names.pfx + " -in " + names.public + " -password pass:" + pfx_pwd;  
+            if (!pfxPass || pfxPass === "") {
+              pfxPass = "password";
+            }
+
+            command = "openssl pkcs12 -export -inkey " + names.private + " -out " + names.pfx + " -in " + names.public + " -password pass:" + pfxPass;  
             exec(command, 
               function (error, stdout, stderr) {
                 if (error !== null) {
