@@ -1,18 +1,20 @@
 div#hero.hero-unit
-    h1 #{title}
-    p #{description}
+  h1 #{title}
+  p #{description}
+div#warning-note.alert.alert-block
+  p.centered Please do not use TEST certificates in production environment 
 
-div#start.row
-  div.span12
-    form(name='form-entercn', method='POST', action='javascript:void(0);').form-horizontal
-      div.control-group#cg-cn
-        label(for='cn').control-label
-          | Enter 
-          strong Common Name: 
-        div.controls
-          div.input-append
-            input(name='cn', type='text', placeholder="Enter Certificate's Common Name here")#cnStart.span8
-            button(onclick='switchToFillInfo()').btn.btn-primary Get Certificate!
+div.container.mainForm
+  div#start.row
+    div.span12
+      form(name='form-entercn', method='POST', action='javascript:void(0);').form-horizontal
+        div.control-group#cg-cn
+          label(for='cn').control-label
+            strong Enter Common Name:
+          div.controls
+            div.input-append
+              input(name='cn', type='text', placeholder="Enter Certificate's Common Name here")#cnStart.span8
+              button(onclick='switchToFillInfo()').btn.btn-primary Get Certificate!
 
 - var attributeNames = ["days", "country", "state", "city", "org", "orgUnit", "cn", "email", "pfxPass"]
 - var attributeValues = ["365", "US", "Some-State", "", "Internet Widgits Pty Ltd", "", "", "", "password"]
@@ -40,9 +42,8 @@ div#fillinfo.container.hide
               label(for=name).control-label #{attributeLabels[i]}
               div.controls
                 input(id=name, name=name, type='text', value='#{attributeValues[i]}').input-xlarge
-          //span.help-block
           div.form-actions
-            button(id='button-submit', onclick='switchToDownload()', data-loading-text="Generating...").btn.btn-primary.offset5 Submit
+            button(id='button-submit', onclick='switchToDownload()', data-loading-text="Generating...").btn.btn-primary.pull-right.span2 Submit
 
 div#download.container.hide
   div.page-header
@@ -123,12 +124,13 @@ script
           },
         },
         highlight: function(label) {
-          console.log('highlight');
-          //$(label).closest('.control-group').addClass('error');
+          //console.log(label);
+          $(label).closest('.control-group').addClass('error');
         },
         success: function(label) {
-          console.log('success');
+          //console.log(label);
           //$(label).closest.closest('.control-group').addClass('success');
+          $(label).closest('.control-group').removeClass('error');
         }
     });
     console.log('done');
