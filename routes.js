@@ -65,10 +65,11 @@ module.exports = function(app, models, mongoose){
    */
   app.post('/feedback', function(req, res, next) {
     var feedback = req.body.feedback; 
-    console.log('feedback: ' + feedback);
+    var msg = req.ip + ' ' + feedback;
+    console.log('feedback: ' + msg);
 
-    fs.open('/feedback/feedback.txt', 'a', 600, function( e, id ) {
-      fs.write( id, req.ip + ' ' + feedback, null, 'utf8', function(){
+    fs.open('/feedback/feedback.txt', 'a', 666, function( e, id ) {
+      fs.write( id, msg, null, 'utf8', function(){
         fs.close(id, function(){
           console.log('file closed, ip: ' + req.ip);
         });
