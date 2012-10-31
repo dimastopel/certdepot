@@ -65,7 +65,7 @@ module.exports = function(app, models, mongoose){
    */
   app.post('/feedback', function(req, res, next) {
     var feedback = req.body.feedback; 
-    var msg = req.ip + ' ' + req.ips + ' ' + feedback;
+    var msg = req.ip + ' ' + req.ips + ' ' + feedback + '\n';
     console.log('feedback: ' + msg);
 
     /*
