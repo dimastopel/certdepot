@@ -37,11 +37,12 @@ label.error {
 }
 
 .footer {
-  margin-top: 60px;
-  /*
-  position:fixed; 
-  bottom:0;
-  */
+  margin-top: 40px;
+}
+
+.feedback {
+  margin-top: 80px;
+  text-align: center;
 }
 
 .mainForm {

@@ -1,7 +1,7 @@
 div#hero.hero-unit
   h1 #{title}
   p #{description}
-div#warning-note.alert.alert-block
+div#warning-note.alert.alert-block.hide
   p.centered Please do not use TEST certificates in production environment 
 
 div.container.mainForm
@@ -47,21 +47,66 @@ div#fillinfo.container.hide
 
 div#download.container.hide
   div.page-header
-      h1 Download your certificates below
+      h1.centered Download your certificates below
   div.row
     div.span12
-      table.table
-        tr
-          td 
-            strong Self Signed Certificate
-          td 
-            form(id='form-getzip', action='')
-              button(type='submit').btn.btn-info Download KEY + PEM Zip
-          td 
-            form(id='form-getpfx', action='')
-              button(type='submit').btn.btn-info Download PFX
+      form(id='form-getzip', action='')
+        div.control-group
+          label(for='getzip').control-label.span8 ZIP archive containing the unencrypted private key and public certificate
+          div.controls
+            button(name='getzip', type='submit').btn.btn-info.span3 Download KEY + PEM
+  div.row
+    div.span12
+      form(id='form-getpfx', action='')
+        div.control-group
+          label(for='getpfx', name='pfxlabel')#pfxlabel.control-label.span8 PFX file containing the certificate with the private key (password:TOKEN)
+          button(name='getpfx', type='submit').btn.btn-info.span3 Download PFX
+  div#feedback.row
+    div.container.feedback
+      div.span12
+        form(name='form-feedback', method='POST', action='javascript:void(0);')
+          div.control-group#cg-feedback
+            label(for='feedback')#label-feedback.control-label
+              strong Your feedback is my oxigen:
+            div.controls
+              div.input-append
+                input(name='feedback', type='text', placeholder="What's the next feature you'd like to see?")#i-feedback.span8
+                button(id='button-feedback', onclick='submit_feedback()', data-loading-text="Submitting...").btn Submit
+
+
+      //- table.table
+      //-   tr
+      //-     td 
+      //-       strong Self Signed Certificate
+      //-     td 
+      //-       form(id='form-getzip', action='')
+      //-         button(type='submit').btn.btn-info Download KEY + PEM Zip
+      //-     td 
+      //-       form(id='form-getpfx', action='')
+      //-         button(type='submit').btn.btn-info Download PFX
 
 script
+  function submit_feedback() {
+    var feedback = document.getElementById('i-feedback').value;
+    console.log('Feedback: ' + feedback);
+
+    if (!feedback || feedback === "") {
+      return;
+    }
+
+    $('#button-feedback').button('loading');
+
+    $.ajax({
+      type: 'POST',
+      url: "/feedback",
+      data: JSON.stringify({feedback:feedback}),
+      contentType: 'application/json',
+      success: function(data) {
+        $('#button-feedback').button('reset');
+        $('#label-feedback').html('<b>Thank you!!</b>');
+      }
+    });
+  }
   function genId() {
     var result='';
     for(var i=0; i<32; i++) {
@@ -82,6 +127,7 @@ script
     
     $('#start').hide();
     $('#hero').hide();
+    $('#warning-note').hide();
     $('#fillinfo').show();
 
     $('#form-fillinfo').validate({
@@ -185,6 +231,15 @@ script
 
         $('#form-getzip').attr('action', '/getcert/id/' + result.id + '/type/zip');
         $('#form-getpfx').attr('action', '/getcert/id/' + result.id + '/type/pfx');
+        var labelText = $('#pfxlabel').text();
+        var pass = certData.pfxPass;
+
+        var newLabel = labelText.replace('TOKEN', pass);
+        $('#pfxlabel').text(newLabel);
+        console.log('Text: ' + $('#pfxlabel').text());
+        console.log('Pass: ' + pass);
+
+        //$('#pfxlabel').attr('text',
 
         completeSwitchToDownload();
       },
@@ -194,5 +249,9 @@ script
   function completeSwitchToDownload() {
     $('#fillinfo').hide();
     $('#download').show();
-
+    $('#warning-note').show();
   }
+
+
+
+
