@@ -47,3 +47,41 @@ label.error {
 .mainForm {
   margin-top: 40px;
 }
+
+/*
+p {
+  font-family:"Verdana", Verdana, sans-serif;
+}
+*/
+
+/*
+span.custom {
+  font-family:"Verdana", Verdana, sans-serif;
+}
+*/
+
+.navbar-inner {
+  background-color: #000; /* background color will be black for all browsers */
+  background-image: none;
+  background-repeat: no-repeat;
+  filter: none;
+}
+
+/*
+
+textarea {
+  font-family:"Verdana", Verdana, sans-serif;
+}
+
+body {
+  font-family:"Verdana", Verdana, sans-serif;
+}
+
+p {
+  font-family:"Verdana", Verdana, sans-serif;
+}
+
+.navbar-search .search-query {
+  font-family:"Verdana", Verdana, sans-serif;
+}
+*/

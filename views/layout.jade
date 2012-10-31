@@ -2,8 +2,9 @@
 html
     head
       title= title
-      link(rel='stylesheet', href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap.min.css')
+      //link(rel='stylesheet', href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap.min.css')
       //link(rel='stylesheet', href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-responsive.min.css')
+      link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
       link(rel='stylesheet', href='/stylesheets/custom.css')
       script(src='//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js')    
       script(src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/js/bootstrap.min.js')
@@ -19,21 +20,9 @@ html
                 span.icon-bar
                 span.icon-bar
                 span.icon-bar
-                a(href='/').brand #{title}
+                a(href='/').brand
+                  span.custom CERTIFICATE DEPOT
                 div.nav-collapse
-                  ul.nav
-                    if page == 'index'
-                      li.active
-                        a(href='/') Home
-                    else 
-                      li
-                        a(href='/') Home
-                    //if page == 'list'
-                    //  li.active
-                    //    a(href='/list') List
-                    //else
-                    //  li
-                    //    a(href='/list') List
                   ul(style='float:right').nav.secondary-nav
                     if page == 'help'
                       li.active
@@ -41,6 +30,14 @@ html
                     else
                       li
                         a(href='/help') Help
+                  ul(style='float:right').nav
+                    if page == 'index'
+                      li.active
+                        a(href='/') Home
+                    else 
+                      li
+                        a(href='/') Home
+
       
       div.container(style='margin-top: 60px')!= body
       
