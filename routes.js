@@ -69,7 +69,7 @@ module.exports = function(app, models, mongoose){
     console.log('feedback: ' + msg);
 
     fs.open('feedback/feedback.txt', 'a', 666, function( e, id ) {
-      fs.write( id, msg, null, 'utf8', function(){
+      fs.write( id, msg, 0, msg.length, null, 'utf8', function(){
         fs.close(id, function(){
           console.log('file closed, ip: ' + req.ip);
         });
