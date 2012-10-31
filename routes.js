@@ -14,17 +14,23 @@ module.exports = function(app, models, mongoose){
 
     //get all the examples
     //models.examples.find({}, function(err, docs){
-      
-      //render the index page
-      res.render('index.jade', {
-          locals: {
-            title: title,
-            description: description,
-            page: 'index'
-          }
-      });
 
+    var connAddr = req.connection.remoteAddress
+    var sockAddr = req.socket.remoteAddress
+    var msg = 'Connection from: ' + connAddr + ' ' + sockAddr + ' for main \n';
+    console.log(msg);
+    var ws = fs.createWriteStream('feedback/connections.txt', {flags: 'a', encoding: 'utf-8', mode: 0666 });
+    ws.end(msg);
+
+    //render the index page
+    res.render('index.jade', {
+        locals: {
+          title: title,
+          description: description,
+          page: 'index'
+        }
     });
+  });
   //});
   
   /**
@@ -71,16 +77,6 @@ module.exports = function(app, models, mongoose){
     var msg = connAddr + ' ' + sockAddr + ' ' + feedback + '\n';
     console.log('feedback: ' + msg);
 
-    /*
-    fs.open('feedback/feedback.txt', 'a', 666, function( e, id ) {
-      fs.write( id, msg, undefined, undefined, undefined, function(){
-        fs.close(id, function(){
-          console.log('file closed, ip: ' + req.ip);
-        });
-      });
-    });
-    */
-
     var ws = fs.createWriteStream('feedback/feedback.txt', {flags: 'a', encoding: 'utf-8', mode: 0666 });
     ws.end(msg);
 
@@ -111,10 +107,6 @@ module.exports = function(app, models, mongoose){
       return;
     }
 
-    //var prefix = "~/certs/" + encodeURIComponent(cn) + "--" + id + "--";
-    //var privateCertName = prefix + "private.pem";
-    //var publicCertName = prefix + "public.pem";
-    //var pfxCertName = prefix + "pfx.pfx";
     var id = uuid.v4();
     var names = getCertNames(id);
 
@@ -208,7 +200,8 @@ module.exports = function(app, models, mongoose){
     var type = req.params.certType;
     var names = getCertNames(id);
 
-    console.log(JSON.stringify(names));
+    console.log('Retreiving certs for id: ' + id);
+    //console.log(JSON.stringify(names));
 
     if (type === "zip") {
 
@@ -227,14 +220,6 @@ module.exports = function(app, models, mongoose){
 
     } else if (type === "pfx") {
 
-      /*
-      if (!fs.existsSync(names.pfx)) {
-        console.warn('can not find: ' + names.pfx);
-        res.send(404, {error: 'Can not find cert for id/type: ' + id + "/" + type});
-        return;
-      }
-      */
-
       res.download(names.pfx, names.pfx, function(err) {
         if (err) {
           console.error('Can not return pfx: ' + err);
@@ -246,28 +231,5 @@ module.exports = function(app, models, mongoose){
       res.send(400, {error: 'Can not return cert for this type: ' + type});
     }
   });
-
-
-
-
-
-  /**
-   *  Add test doc
-   */
-   /*
-  app.post('/posts', function(req, res){
-     var now = new Date();
-     var Post = models.examples;
-     var post = new Post();
-     post.name = req.param('doc');
-     post.date = now;
-     post.save(function(err) {
-         console.log('error check');
-         if(err) { throw err; }
-         console.log('saved');
-     });
-     res.redirect('/list');
-  });
-*/
   
 };
