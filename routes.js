@@ -59,6 +59,26 @@ module.exports = function(app, models, mongoose){
     return names;
   }
 
+
+  /**
+   *  Feedback
+   */
+  app.post('/feedback', function(req, res, next) {
+    var feedback = req.body.feedback; 
+    console.log('feedback: ' + feedback);
+
+    fs.open('/feedback/feedback.txt', 'a', 600, function( e, id ) {
+      fs.write( id, req.ip + ' ' + feedback, null, 'utf8', function(){
+        fs.close(id, function(){
+          console.log('file closed, ip: ' + req.ip);
+        });
+      });
+    });
+
+    res.send('Thanks!');
+  });
+
+
   /**
    *  Create cert
    */
@@ -217,6 +237,9 @@ module.exports = function(app, models, mongoose){
       res.send(400, {error: 'Can not return cert for this type: ' + type});
     }
   });
+
+
+
 
 
   /**
