@@ -21,19 +21,6 @@ html
                 span.icon-bar
                 a(href='/').brand #{title}
                 div.nav-collapse
-                  ul.nav
-                    if page == 'index'
-                      li.active
-                        a(href='/') Home
-                    else 
-                      li
-                        a(href='/') Home
-                    //if page == 'list'
-                    //  li.active
-                    //    a(href='/list') List
-                    //else
-                    //  li
-                    //    a(href='/list') List
                   ul(style='float:right').nav.secondary-nav
                     if page == 'help'
                       li.active
@@ -41,12 +28,19 @@ html
                     else
                       li
                         a(href='/help') Help
+                  ul(style='float:right').nav
+                    if page == 'index'
+                      li.active
+                        a(href='/') Home
+                    else 
+                      li
+                        a(href='/') Home
       
       div.container(style='margin-top: 60px')!= body
       
       div.container.footer
         div.row
-          div.span12
-            p.centered
+          div.span12.centered
+            p
               | Created by 
               a(href='https://github.com/dimastopel')(target='_blank') Dima Stopel
