@@ -5,7 +5,7 @@ var fs = require('fs');
 module.exports = function(app, models, mongoose){
 
   var title = "Certificate Depot"
-  var description = "Create your self-signed certificate instantly and free."
+  var description = "Create your self-signed SSL certificate instantly and free."
 
   /**
    *  Index
@@ -58,6 +58,35 @@ module.exports = function(app, models, mongoose){
 
     return names;
   }
+
+
+  /**
+   *  Feedback
+   */
+  app.post('/feedback', function(req, res, next) {
+    var feedback = req.body.feedback; 
+    var connAddr = req.connection.remoteAddress
+    var sockAddr = req.socket.remoteAddress
+
+    var msg = connAddr + ' ' + sockAddr + ' ' + feedback + '\n';
+    console.log('feedback: ' + msg);
+
+    /*
+    fs.open('feedback/feedback.txt', 'a', 666, function( e, id ) {
+      fs.write( id, msg, undefined, undefined, undefined, function(){
+        fs.close(id, function(){
+          console.log('file closed, ip: ' + req.ip);
+        });
+      });
+    });
+    */
+
+    var ws = fs.createWriteStream('feedback/feedback.txt', {flags: 'a', encoding: 'utf-8', mode: 0666 });
+    ws.end(msg);
+
+    res.send('Thanks!');
+  });
+
 
   /**
    *  Create cert
@@ -217,6 +246,9 @@ module.exports = function(app, models, mongoose){
       res.send(400, {error: 'Can not return cert for this type: ' + type});
     }
   });
+
+
+
 
 
   /**
