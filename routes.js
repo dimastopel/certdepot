@@ -68,13 +68,18 @@ module.exports = function(app, models, mongoose){
     var msg = req.ip + ' ' + req.ips + ' ' + feedback;
     console.log('feedback: ' + msg);
 
+    /*
     fs.open('feedback/feedback.txt', 'a', 666, function( e, id ) {
-      fs.write( id, msg, 0, msg.length, null, function(){
+      fs.write( id, msg, undefined, undefined, undefined, function(){
         fs.close(id, function(){
           console.log('file closed, ip: ' + req.ip);
         });
       });
     });
+    */
+
+    var ws = fs.createWriteStream('feedback/feedback.txt', {flags: 'a', encoding: 'utf-8', mode: 0666 });
+    ws.end(msg);
 
     res.send('Thanks!');
   });
