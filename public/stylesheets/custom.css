@@ -48,3 +48,7 @@ label.error {
 .mainForm {
   margin-top: 40px;
 }
+
+.feedbackButton {
+    width: 120px;
+}

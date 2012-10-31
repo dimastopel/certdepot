@@ -5,7 +5,7 @@ var fs = require('fs');
 module.exports = function(app, models, mongoose){
 
   var title = "Certificate Depot"
-  var description = "Create your self-signed certificate instantly and free."
+  var description = "Create your self-signed SSL certificate instantly and free."
 
   /**
    *  Index
@@ -65,7 +65,10 @@ module.exports = function(app, models, mongoose){
    */
   app.post('/feedback', function(req, res, next) {
     var feedback = req.body.feedback; 
-    var msg = req.ip + ' ' + req.ips + ' ' + feedback + '\n';
+    var connAddr = req.connection.remoteAddress
+    var sockAddr = req.socket.remoteAddress
+
+    var msg = connAddr + ' ' + sockAddr + ' ' + feedback + '\n';
     console.log('feedback: ' + msg);
 
     /*

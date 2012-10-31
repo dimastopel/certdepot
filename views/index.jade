@@ -71,20 +71,7 @@ div#download.container.hide
             div.controls
               div.input-append
                 input(name='feedback', type='text', placeholder="What's the next feature you'd like to see?")#i-feedback.span8
-                button(id='button-feedback', onclick='submit_feedback()', data-loading-text="Submitting...").btn Submit
-
-
-      //- table.table
-      //-   tr
-      //-     td 
-      //-       strong Self Signed Certificate
-      //-     td 
-      //-       form(id='form-getzip', action='')
-      //-         button(type='submit').btn.btn-info Download KEY + PEM Zip
-      //-     td 
-      //-       form(id='form-getpfx', action='')
-      //-         button(type='submit').btn.btn-info Download PFX
-
+                button(id='button-feedback', onclick='submit_feedback()', data-loading-text="Submitting...").btn.feedbackButton Submit
 script
   function submit_feedback() {
     var feedback = document.getElementById('i-feedback').value;
