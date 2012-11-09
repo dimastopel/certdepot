@@ -15,6 +15,11 @@ div.container.mainForm
             div.input-append
               input(name='cn', type='text', placeholder="Enter Certificate's Common Name here")#cnStart.span8
               button(onclick='switchToFillInfo()').btn.btn-primary Get Certificate!
+  div.row
+    div.span12
+      p.centered.flattr
+        a(href="http://flattr.com/thing/981539/Certificate-Depot", target="_blank")
+          img(src="http://api.flattr.com/button/flattr-badge-large.png", alt="Flattr this", title="Flattr this", border="0") 
 
 - var attributeNames = ["days", "country", "state", "city", "org", "orgUnit", "cn", "email", "pfxPass"]
 - var attributeValues = ["365", "US", "Some-State", "", "Internet Widgits Pty Ltd", "", "", "", "password"]
