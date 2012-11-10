@@ -10,7 +10,10 @@ div.container.mainForm#start
       form(name='form-entercn', method='POST', action='javascript:void(0);').form-horizontal
         div.control-group#cg-cn
           label(for='cn').control-label
-            strong Enter Common Name:
+            strong 
+              | Enter 
+              a(href="#", rel="tooltip", "title"="e.g., \"www.your-site.com\", \"John Doe\"") Common Name
+              | :
           div.controls
             div.input-append
               input(name='cn', type='text', placeholder="Enter Certificate's Common Name here")#cnStart.span8
@@ -22,17 +25,31 @@ div.container.mainForm#start
         span.badge.badge-info#certs-count NN
 
 - var attributeNames = ["days", "country", "state", "city", "org", "orgUnit", "cn", "email", "pfxPass"]
-- var attributeValues = ["365", "US", "Some-State", "", "Internet Widgits Pty Ltd", "", "", "", "password"]
+- var attributeValues = ["365", "US", "Washington", "Seattle", "Cray Inc.", "Chipset", "", "john.doe@cray.com", "password"]
+//- var attributePlaceholders = ["365", "US", "Some-State", "", "Internet Widgits Pty Ltd", "", "", "", "password"]
 - var attributeLabels = [];
-- attributeLabels[0] = "Validity period (in days)";
-- attributeLabels[1] = "Country Name (2 letter code)";
+- attributeLabels[0] = "Validity period";
+- attributeLabels[1] = "Country Name";
 - attributeLabels[2] = "State or Province Name";
-- attributeLabels[3] = "Locality Name (eg, city)";
-- attributeLabels[4] = "Organization Name (eg, company)";
-- attributeLabels[5] = "Organizational Unit Name (eg, section)";
-- attributeLabels[6] = "Common Name (eg, YOUR name)";
+- attributeLabels[3] = "Locality Name";
+- attributeLabels[4] = "Organization Name";
+- attributeLabels[5] = "Organizational Unit";
+- attributeLabels[6] = "Common Name";
 - attributeLabels[7] = "Email Address";
 - attributeLabels[8] = "PFX file password";
+
+
+- var tooltips = [];
+- tooltips[0] = "Validity period in days";
+- tooltips[1] = "Country 2 letter code";
+- tooltips[2] = "";
+- tooltips[3] = "e.g., City";
+- tooltips[4] = "e.g., Company name";
+- tooltips[5] = "e.g., Division within a company";
+- tooltips[6] = "The one that was entered earlier";
+- tooltips[7] = "";
+- tooltips[8] = "Password that is used to encrypt the PFX file";
+
 
 div#fillinfo.container.hide
   div.page-header
@@ -44,7 +61,14 @@ div#fillinfo.container.hide
         fieldset
           each name, i in attributeNames
             div.control-group
-              label(for=name).control-label #{attributeLabels[i]}
+              label(for=name).control-label 
+                if tooltips[i] == ""
+                  | #{attributeLabels[i]}
+                else
+                  | #{attributeLabels[i]} (
+                  strong
+                    a(href="#", rel="tooltip", "title"=tooltips[i]) ?
+                  |)
               div.controls
                 input(id=name, name=name, type='text', value='#{attributeValues[i]}').input-xlarge
           div.form-actions
@@ -64,7 +88,13 @@ div#download.container.hide
     div.span12
       form(id='form-getpfx', action='')
         div.control-group
-          label(for='getpfx', name='pfxlabel')#pfxlabel.control-label.span8 PFX file containing the certificate with the private key (password:TOKEN)
+          label(for='getpfx').control-label.span8 
+            | PFX file containing the certificate with the private key [ 
+            a(href="#", rel="tooltip", "title"="Use the password on the right to install the PFX file") password
+            |  :
+            strong
+              span(name='pfxlabel')#pfxlabel  TOKEN
+            |  ]
           button(name='getpfx', type='submit').btn.btn-info.span3 Download PFX
   div#feedback.row
     div.container.feedback
@@ -223,11 +253,12 @@ script
 
         $('#form-getzip').attr('action', '/getcert/id/' + result.id + '/type/zip');
         $('#form-getpfx').attr('action', '/getcert/id/' + result.id + '/type/pfx');
-        var labelText = $('#pfxlabel').text();
+        var labelText = $('#pfxlabel').html();
         var pass = certData.pfxPass;
 
+        console.log('Text: ' + $('#pfxlabel').text());
         var newLabel = labelText.replace('TOKEN', pass);
-        $('#pfxlabel').text(newLabel);
+        $('#pfxlabel').html(newLabel);
         console.log('Text: ' + $('#pfxlabel').text());
         console.log('Pass: ' + pass);
 
@@ -247,6 +278,7 @@ script
   // ready
   $(document).ready(function() {
     
+    // get certs count
     $.ajax({
       type: 'GET',
       url: "/certcount",
@@ -263,6 +295,10 @@ script
         $('#certs-count').text(result.count);
       }
     });
+
+    // activate tooltips
+    $("[rel=tooltip]").tooltip();
+
   });
 
 
