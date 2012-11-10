@@ -6,6 +6,7 @@ module.exports = function(app, models, mongoose){
 
   var title = "Certificate Depot"
   var description = "Create your self-signed SSL certificate instantly and for free."
+  var certPath = "/home/dima/certs/";
 
   /**
    *  Index
@@ -50,7 +51,7 @@ module.exports = function(app, models, mongoose){
 
   function getCertNames(id)
   {
-    var prefix = "/home/dima/certs/" + id + ".";
+    var prefix = certPath + id + ".";
     var names = {};
 
     names.private = prefix + "private.pem";
@@ -231,5 +232,26 @@ module.exports = function(app, models, mongoose){
       res.send(400, {error: 'Can not return cert for this type: ' + type});
     }
   });
-  
+
+  app.get('/certcount', function(req, res, next) {
+
+    // TODO: create a separate counter and delete the certs
+
+    console.log('Retreiving certs count');
+
+    var command = "ls " + certPath + "*.zip | wc -l";  
+    exec(command, 
+      function (error, stdout, stderr) {
+        if (error !== null) {
+          console.log('exec error: ' + error);
+          res.send(500, {error: 'Failed to get certificate count: ' + error});
+          return;
+        }
+
+        var count = stdout.toString().trim();
+        console.log('Successfully retreived certs count: ' + count);
+        res.send({count:count});
+      }
+    );
+  });
 };

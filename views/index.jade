@@ -4,8 +4,8 @@ div#hero.hero-unit
 div#warning-note.alert.alert-block.hide
   p.centered Please do not use TEST certificates in production environment 
 
-div.container.mainForm
-  div#start.row
+div.container.mainForm#start
+  div.row
     div.span12
       form(name='form-entercn', method='POST', action='javascript:void(0);').form-horizontal
         div.control-group#cg-cn
@@ -17,9 +17,9 @@ div.container.mainForm
               button(onclick='switchToFillInfo()').btn.btn-primary Get Certificate!
   div.row
     div.span12
-      p.centered.flattr
-        a(href="http://flattr.com/thing/981539/Certificate-Depot", target="_blank")
-          img(src="http://api.flattr.com/button/flattr-badge-large.png", alt="Flattr this", title="Flattr this", border="0") 
+      p.centered.certCount
+        | Generated certificate count: 
+        span.badge.badge-info#certs-count NN
 
 - var attributeNames = ["days", "country", "state", "city", "org", "orgUnit", "cn", "email", "pfxPass"]
 - var attributeValues = ["365", "US", "Some-State", "", "Internet Widgits Pty Ltd", "", "", "", "password"]
@@ -234,7 +234,7 @@ script
         //$('#pfxlabel').attr('text',
 
         completeSwitchToDownload();
-      },
+      }
     });
     
   }
@@ -244,7 +244,29 @@ script
     $('#warning-note').show();
   }
 
+  // ready
+  $(document).ready(function() {
+    
+    $.ajax({
+      type: 'GET',
+      url: "/certcount",
+      success: function(data) {
+        var result = data;
+        if (!result.count || result.count === "")
+        {
+          console.error('Did not got cert Id. Can not continue');
+          return;
+        }
+        
+        console.log('success! count:' + result.count);
 
+        $('#certs-count').text(result.count);
+      }
+    });
+  });
+
+
+  // google analytics
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-36157926-1']);
   _gaq.push(['_trackPageview']);
