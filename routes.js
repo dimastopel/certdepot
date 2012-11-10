@@ -49,8 +49,7 @@ module.exports = function(app, models, mongoose){
   });
 
 
-  function getCertNames(id)
-  {
+  function getCertNames(id) {
     var prefix = certPath + id + ".";
     var names = {};
 
@@ -66,6 +65,9 @@ module.exports = function(app, models, mongoose){
     return names;
   }
 
+  function escapeShell(cmd) {
+    return '"'+cmd.replace(/(["\s'$`\\])/g,'\\$1')+'"';
+  };
 
   /**
    *  Feedback
@@ -151,7 +153,7 @@ module.exports = function(app, models, mongoose){
 
         console.log("subj: " + subj);
 
-        command = "openssl req -x509 -new -batch -subj \"" + subj + "\" -key " + names.private + " -out " + names.public + " -days " + days;  
+        command = "openssl req -x509 -new -batch -subj " + escapeShell(subj) + " -key " + names.private + " -out " + names.public + " -days " + escapeShell(days);  
         exec(command, 
           function (error, stdout, stderr) {
             if (error !== null) {
@@ -164,7 +166,7 @@ module.exports = function(app, models, mongoose){
               pfxPass = "password";
             }
 
-            command = "openssl pkcs12 -export -inkey " + names.private + " -out " + names.pfx + " -in " + names.public + " -password pass:" + pfxPass;  
+            command = "openssl pkcs12 -export -inkey " + names.private + " -out " + names.pfx + " -in " + names.public + " -password pass:" + escapeShell(pfxPass);  
             exec(command, 
               function (error, stdout, stderr) {
                 if (error !== null) {
