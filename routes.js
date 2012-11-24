@@ -6,8 +6,8 @@ module.exports = function(app, models, mongoose){
 
   var title = "Certificate Depot"
   var description = "Create your self-signed SSL certificate instantly and for free."
-  //var certPath = "/home/dima/certs/";
-  var certPath = "~/certs/";
+  var certPath = "/home/root/certs/";
+  //var certPath = "~/certs/";
 
   /**
    *  Index
