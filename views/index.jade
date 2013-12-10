@@ -252,8 +252,8 @@ script
         
         console.log('success! Id:' + result.id);
 
-        $('#form-getzip').attr('action', app_path + '/getcert/id/' + result.id + '/type/zip');
-        $('#form-getpfx').attr('action', app_path + '/getcert/id/' + result.id + '/type/pfx');
+        $('#form-getzip').attr('action', '/getcert/id/' + result.id + '/type/zip');
+        $('#form-getpfx').attr('action', '/getcert/id/' + result.id + '/type/pfx');
         var labelText = $('#pfxlabel').html();
         var pass = certData.pfxPass;
 
