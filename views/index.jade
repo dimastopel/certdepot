@@ -108,6 +108,7 @@ div#download.container.hide
                 input(name='feedback', type='text', placeholder="What's the next feature you'd like to see?")#i-feedback.span8
                 button(id='button-feedback', onclick='submit_feedback()', data-loading-text="Submitting...").btn.feedbackButton Submit
 script
+  var app_path = '/certdepot';
   function submit_feedback() {
     var feedback = document.getElementById('i-feedback').value;
     console.log('Feedback: ' + feedback);
@@ -120,7 +121,7 @@ script
 
     $.ajax({
       type: 'POST',
-      url: "/feedback",
+      url: app_path + "/feedback",
       data: JSON.stringify({feedback:feedback}),
       contentType: 'application/json',
       success: function(data) {
@@ -229,7 +230,7 @@ script
 
     $.ajax({
       type: 'POST',
-      url: "/create",
+      url: app_path + "/create",
       data: JSON.stringify(certData),
       contentType: 'application/json',
       success: function(data) {
@@ -281,7 +282,7 @@ script
     // get certs count
     $.ajax({
       type: 'GET',
-      url: "/certcount",
+      url: app_path + "/certcount",
       success: function(data) {
         var result = data;
         if (!result.count || result.count === "")
