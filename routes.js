@@ -164,11 +164,11 @@ module.exports = function(app, models, mongoose){
               return;
             }
 
-            if (!pfxPass || pfxPass === "") {
-              pfxPass = "password";
+            command = "openssl pkcs12 -export -inkey " + names.private + " -out " + names.pfx + " -in " + names.public;
+            if (pfxPass && pfxPass != "") {
+              command = command + " -password pass:" + escapeShell(pfxPass);  
             }
 
-            command = "openssl pkcs12 -export -inkey " + names.private + " -out " + names.pfx + " -in " + names.public + " -password pass:" + escapeShell(pfxPass);  
             exec(command, 
               function (error, stdout, stderr) {
                 if (error !== null) {
