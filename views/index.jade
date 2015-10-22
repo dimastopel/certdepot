@@ -129,6 +129,7 @@ script
       }
     });
   }
+  
   function genId() {
     var result='';
     for(var i=0; i<32; i++) {
@@ -136,6 +137,7 @@ script
     }
     return result;
   }
+
   function switchToFillInfo()  {
     var common_name = document.getElementById('cnStart').value;
     document.getElementById('cn').value = common_name;
@@ -146,7 +148,6 @@ script
       return;
     }
 
-    
     $('#start').hide();
     $('#hero').hide();
     $('#warning-note').hide();
@@ -203,16 +204,13 @@ script
     });
     console.log('done');
   }
-  function switchToDownload()  {
-    //$('#start').hide();
-    //$('#hero').hide();
 
+  function switchToDownload()  {
     console.log("validity: " + $('#form-fillinfo').valid());
     if (!$('#form-fillinfo').valid()) {
       console.log('info form is not valid. returning...');
       return;
     }
-
 
     var certData = {};
     $("#form-fillinfo input[type=text]").each(function() {
@@ -225,7 +223,7 @@ script
     console.log(certId);
     console.log(JSON.stringify(certData));
 
-    $('#button-submit').button('loading');
+    $('#button-submit').text('loading');
 
     $.ajax({
       type: 'POST',
@@ -235,14 +233,6 @@ script
       success: function(data) {
         var result = data;;
         
-        //console.log('data:' + data);
-        //try {
-        //  result = JSON.parse(data);
-        //} catch(err) {
-        //  console.error('Can not parse data: ' + err);
-        //  return;
-        //}
-
         if (!result.id || result.id === "")
         {
           console.error('Did not got cert Id. Can not continue');
@@ -262,13 +252,12 @@ script
         console.log('Text: ' + $('#pfxlabel').text());
         console.log('Pass: ' + pass);
 
-        //$('#pfxlabel').attr('text',
-
         completeSwitchToDownload();
       }
     });
     
   }
+
   function completeSwitchToDownload() {
     $('#fillinfo').hide();
     $('#download').show();
