@@ -6,7 +6,8 @@
   "dependencies": {
     "express": "^4.16.2",
     "body-parser": "^1.18.2",
-    "uuid":"^3.2.1"
+    "uuid":"^3.2.1",
+    "compression":"^1.7.2"
   },
   "devDependencies": {},
   "scripts": {

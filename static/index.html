@@ -21,6 +21,7 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/skeleton.css">
+  <link rel="stylesheet" href="css/custom.css">
 
   <!-- Favicon
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -38,7 +39,8 @@
 
     <div class="row">
       <div class="one-half column" style="margin-top: 15%">
-        <h2>Certificate Depot - Generate your SSL certificate now</h2>
+        <h1>Certificate Depot</h1>
+        <h4>Generate your SSL certificate now</h4>
         <p>Please do not use TEST certificates in production environment.</p>
       </div>
     </div>
@@ -48,7 +50,7 @@
         <div class="three columns">
           <label for="ValidityPeriodInput">Validity period</label>
         </div>
-        <div class="seven columns">
+        <div class="nine columns">
           <input class="u-full-width" type="text" placeholder=365 id="ValidityPeriodInput" name="days">
         </div>
       </div>
@@ -56,7 +58,7 @@
         <div class="three columns">
           <label for="CountryNameInput">Country Name</label>
         </div>
-        <div class="seven columns">
+        <div class="nine columns">
           <input class="u-full-width" type="text" placeholder="US" id="CountryNameInput" name="country">
         </div>
       </div>
@@ -64,7 +66,7 @@
         <div class="three columns">
           <label for="StateOrProInput">State or Province Name</label>
         </div>
-        <div class="seven columns">
+        <div class="nine columns">
           <input class="u-full-width" type="text" placeholder="CA" id="StateOrProInput" name="state">
         </div>
       </div>
@@ -72,7 +74,7 @@
         <div class="three columns">
           <label for="LocalityInput">Locality Name</label>
         </div>
-        <div class="seven columns">
+        <div class="nine columns">
           <input class="u-full-width" type="text" placeholder="San Francisco" id="LocalityInput" name="city">
         </div>
       </div>
@@ -80,7 +82,7 @@
         <div class="three columns">
           <label for="OrganizationNameInput">Organization Name</label>
         </div>
-        <div class="seven columns">
+        <div class="nine columns">
           <input class="u-full-width" type="text" placeholder="Sales" id="OrganizationNameInput" name="org">
         </div>
       </div>
@@ -88,7 +90,7 @@
         <div class="three columns">
           <label for="OrganizationalUnitInput">Organizational Unit</label>
         </div>
-        <div class="seven columns">
+        <div class="nine columns">
           <input class="u-full-width" type="text" placeholder="Inside" id="OrganizationalUnitInput" name="orgUnit">
         </div>
       </div>
@@ -96,7 +98,7 @@
         <div class="three columns">
           <label for="CommonNameInput">Common Name</label>
         </div>
-        <div class="seven columns">
+        <div class="nine columns">
           <input class="u-full-width" type="text" placeholder="mysite.com" id="CommonNameInput" name="cn">
         </div>
       </div>
@@ -104,7 +106,7 @@
         <div class="three columns">
           <label for="EmailAddressInput">Email Address</label>
         </div>
-        <div class="seven columns">
+        <div class="nine columns">
           <input class="u-full-width" type="email" placeholder="admin@mysite.com" id="EmailAddressInput" name="email">
         </div>
       </div>
@@ -112,13 +114,25 @@
         <div class="three columns">
           <label for="PFXFilePasswordInput">PFX file password</label>
         </div>
-        <div class="seven columns">
+        <div class="nine columns">
           <input class="u-full-width" type="text" placeholder="password" id="PFXFilePasswordInput" name="pfxPass">
         </div>
       </div>
       <input class="button-primary" type="button" value="Submit" onclick="createCert()">
     </form>
+</div>
+<div class="container">
+    <div class="row">
+      <div class="one-half column">
+        <input class="button u-max-full-width" type="button" value="Download PFX" onclick="downloadPFX()">
+      </div>
+      <div class="one-half column">
+        <input class="button u-max-full-width" type="button" value="Download PEM" onclick="downloadPEM()">
+      </div>
+    </div>
+  </div>
 
+  <div class="container">
 
     <div class="row">
       <table id="demo-table" class="u-full-width">

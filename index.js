@@ -2,6 +2,7 @@ const express = require('express')
 const exec = require('child_process').exec
 const uuid = require('uuid/v4')
 const bodyParser = require('body-parser')
+const compression = require('compression')
 const fs = require('fs')
 
 const app = express()
@@ -11,6 +12,7 @@ const counterFileName = certPath + "counter.txt";
 
 app.use(express.static('static'))
 app.use(bodyParser.urlencoded({ extended: false }))
+app.use(compression())
 
 app.post('/api/create', function (req, res) {
 
