@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pushd ~/certs
+pushd certs
 zip -9 $1 $2 $3
 popd
 

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Certificate Depot - Generate your SSL certificate now!</title>
+  <meta name="description" content="Create your self-signed SSL certificate instantly and for free.">
+  <meta name="author" content="Dima Stopel">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/skeleton.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+  <!-- Scripts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <script src="js/serialize-0.2.min.js"></script>
+
+
+</head>
+<body>
+
+  <div class="container">
+
+    <div class="row">
+      <div class="one-half column" style="margin-top: 15%">
+        <h2>Certificate Depot - Generate your SSL certificate now</h2>
+        <p>Please do not use TEST certificates in production environment.</p>
+      </div>
+    </div>
+
+    <form id="certform" name="certform">
+      <div class="row">
+        <div class="three columns">
+          <label for="ValidityPeriodInput">Validity period</label>
+        </div>
+        <div class="seven columns">
+          <input class="u-full-width" type="text" placeholder=365 id="ValidityPeriodInput" name="days">
+        </div>
+      </div>
+      <div class="row">
+        <div class="three columns">
+          <label for="CountryNameInput">Country Name</label>
+        </div>
+        <div class="seven columns">
+          <input class="u-full-width" type="text" placeholder="US" id="CountryNameInput" name="country">
+        </div>
+      </div>
+      <div class="row">
+        <div class="three columns">
+          <label for="StateOrProInput">State or Province Name</label>
+        </div>
+        <div class="seven columns">
+          <input class="u-full-width" type="text" placeholder="CA" id="StateOrProInput" name="state">
+        </div>
+      </div>
+      <div class="row">
+        <div class="three columns">
+          <label for="LocalityInput">Locality Name</label>
+        </div>
+        <div class="seven columns">
+          <input class="u-full-width" type="text" placeholder="San Francisco" id="LocalityInput" name="city">
+        </div>
+      </div>
+      <div class="row">
+        <div class="three columns">
+          <label for="OrganizationNameInput">Organization Name</label>
+        </div>
+        <div class="seven columns">
+          <input class="u-full-width" type="text" placeholder="Sales" id="OrganizationNameInput" name="org">
+        </div>
+      </div>
+      <div class="row">
+        <div class="three columns">
+          <label for="OrganizationalUnitInput">Organizational Unit</label>
+        </div>
+        <div class="seven columns">
+          <input class="u-full-width" type="text" placeholder="Inside" id="OrganizationalUnitInput" name="orgUnit">
+        </div>
+      </div>
+      <div class="row">
+        <div class="three columns">
+          <label for="CommonNameInput">Common Name</label>
+        </div>
+        <div class="seven columns">
+          <input class="u-full-width" type="text" placeholder="mysite.com" id="CommonNameInput" name="cn">
+        </div>
+      </div>
+      <div class="row">
+        <div class="three columns">
+          <label for="EmailAddressInput">Email Address</label>
+        </div>
+        <div class="seven columns">
+          <input class="u-full-width" type="email" placeholder="admin@mysite.com" id="EmailAddressInput" name="email">
+        </div>
+      </div>
+      <div class="row">
+        <div class="three columns">
+          <label for="PFXFilePasswordInput">PFX file password</label>
+        </div>
+        <div class="seven columns">
+          <input class="u-full-width" type="text" placeholder="password" id="PFXFilePasswordInput" name="pfxPass">
+        </div>
+      </div>
+      <input class="button-primary" type="button" value="Submit" onclick="createCert()">
+    </form>
+
+
+    <div class="row">
+      <table id="demo-table" class="u-full-width">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Age</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Dave Gamache</td>
+            <td>26</td>
+          </tr>
+          <tr>
+            <td>Dwayne Johnson</td>
+            <td>42</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="row">
+      <a class="button" onclick="foo()">Anchor button</a>
+    </div>
+  </div>
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+<script>
+
+function createCert()
+{
+
+  console.log("click1");
+
+
+  var form = document.querySelector("#certform");
+  /*
+  var data = new FormData(form);
+  console.log(data.get("CommonNameInput"));
+  console.log(document.querySelector("#CommonNameInput").value);
+  console.log(document.forms["certform"]["CommonNameInput"].value);
+  */
+  var data = serialize(form);
+  console.log(data);
+
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function() { 
+      if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+          defaultCallback(xmlHttp.responseText);
+  }
+  xmlHttp.open("POST", "http://localhost:3000/api/create", true); // true for asynchronous 
+  xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlHttp.send(data);
+
+
+}
+
+function defaultCallback()
+{
+  console.log("done");
+}
+
+function httpGet(theUrl)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+}
+
+function httpGetAsync(theUrl, callback)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+}
+
+
+function foo()
+{
+  httpGetAsync("http://localhost:3000/api/rand", fillTable);
+}
+
+function fillTable(dataString)
+{
+  var table = document.getElementById("demo-table");
+  while ( table.rows.length > 0 )
+  {
+    table.deleteRow(0);
+  }
+
+  var data = JSON.parse(dataString);
+  for (var prop in data) {
+      if (data.hasOwnProperty(prop)) {
+        // Create an empty <tr> element and add it to the 1st position of the table:
+        var row = table.insertRow(0);
+
+        // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+
+        // Add some text to the new cells:
+        cell1.innerText = prop;
+        cell2.innerText = data[prop];
+      }
+  }
+}
+
+</script>
+
+
+</html>
