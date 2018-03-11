@@ -34,18 +34,21 @@
 
 </head>
 <body>
-
   <div class="container">
-
-    <div class="row">
-      <div class="one-half column" style="margin-top: 15%">
+    <div class="row" id="header">
         <h1>Certificate Depot</h1>
         <h4>Generate your SSL certificate now</h4>
-        <p>Please do not use TEST certificates in production environment.</p>
-      </div>
     </div>
 
-    <form id="certform" name="certform">
+    <div class="row" id="cert-warning">
+        <p id="cert-warning-text">Certificates are self signed. Please do not use TEST certificates in production environment.</p>
+    </div>
+
+    <div class="row" id="status-message">
+        <p id="status-message-text">Certificates generated successfully</p>
+    </div>
+
+    <form id="cert-form" name="cert-form">
       <div class="row">
         <div class="three columns">
           <label for="ValidityPeriodInput">Validity period</label>
@@ -118,22 +121,32 @@
           <input class="u-full-width" type="text" placeholder="password" id="PFXFilePasswordInput" name="pfxPass">
         </div>
       </div>
-      <input class="button-primary" type="button" value="Submit" onclick="createCert()">
+      <div class="row">
+        <input class="button-primary" id="submit-button" type="button" value="Submit" onclick="createCert()">
+      </div>
+      <!--
+      <div class="row">
+        <div class="ten columns"></div>
+        <div class="two columns">
+          <input class="button-primary" id="submit-button" type="button" value="Submit" onclick="createCert()">
+        </div>
+      </div>
+      -->
     </form>
-</div>
-<div class="container">
-    <div class="row">
+
+    <div class="row" id="download-buttons">
       <div class="one-half column">
-        <input class="button u-max-full-width" type="button" value="Download PFX" onclick="downloadPFX()">
+        <input class="button" type="button" id="download-pfx" value="Download PFX" onclick="downloadPFX()">
       </div>
       <div class="one-half column">
-        <input class="button u-max-full-width" type="button" value="Download PEM" onclick="downloadPEM()">
+        <input class="button" type="button" id="download-pem" value="Download PEM" onclick="downloadPEM()">
       </div>
     </div>
-  </div>
 
-  <div class="container">
-
+    <div class="row" id="footer">
+      <p>Created by Dima Stopel</p>
+    </div>
+    <!--
     <div class="row">
       <table id="demo-table" class="u-full-width">
         <thead>
@@ -154,10 +167,12 @@
         </tbody>
       </table>
     </div>
-    
+
     <div class="row">
       <a class="button" onclick="foo()">Anchor button</a>
     </div>
+    -->
+
   </div>
 
 <!-- End Document
@@ -171,12 +186,12 @@ function createCert()
   console.log("click1");
 
 
-  var form = document.querySelector("#certform");
+  var form = document.querySelector("#cert-form");
   /*
   var data = new FormData(form);
   console.log(data.get("CommonNameInput"));
   console.log(document.querySelector("#CommonNameInput").value);
-  console.log(document.forms["certform"]["CommonNameInput"].value);
+  console.log(document.forms["cert-form"]["CommonNameInput"].value);
   */
   var data = serialize(form);
   console.log(data);

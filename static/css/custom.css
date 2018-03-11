@@ -1,7 +1,67 @@
+:root {
+	--color-red : #ec7063;
+	--color-grey: #eaeded;
+	--color-yellow: #f4d03f;
+	--color-white: #fbfcfc;
+	--color-light-green: #DAF7A6;
+	--color-green: #2ecc71;
+}
 
 
-.centered-button {
-  margin:auto;
-  display:block;
-  
+#header {
+	margin-top: 5%;
+	text-align: center;
+}
+
+#cert-warning {
+	margin-top: 0%;
+	text-align: center;
+	color: black;
+	font-weight: bold;
+    border: 3px solid var(--color-yellow);
+    border-radius: 5px;
+}
+
+#cert-warning-text {
+	margin-bottom: 0%;
+}
+
+#status-message {
+	margin-top: 3%;
+	text-align: center;
+	color: black;
+	font-weight: bold;
+    border: 3px solid var(--color-green);
+    border-radius: 5px;
+}
+
+#status-message-text {
+	margin-bottom: 0%;
+}
+
+#cert-form {
+	margin-top: 5%;
+}
+
+#download-buttons {
+	margin-top: 10%;
+}
+
+#download-pfx, #download-pem {
+	display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+
+#submit-button {
+    position: absolute;
+    right: 0px;
+    width: 150px;
+}
+
+#footer {
+	margin-top: 5%;
+	text-align: right;
 }
