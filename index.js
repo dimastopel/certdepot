@@ -29,7 +29,7 @@ app.post('/api/create', function (req, res) {
   if (!cn || cn === "")
   {
     console.log("Error: CN is empty. Doing nothing.")
-    res.status(400).send({error: "Common Name can't be empty"})
+    res.status(400).send({error: "Common Name can not be empty"})
     return;
   }
 

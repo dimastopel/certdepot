@@ -36,7 +36,7 @@
 <body>
   <div class="container">
     <div class="row" id="header">
-        <h1>Certificate Depot</h1>
+        <h1>Certificate Depot <span id="subnote">v2</span></h1>
         <h4>Generate your SSL certificate now</h4>
     </div>
 
@@ -44,22 +44,18 @@
         <p id="cert-warning-text">Certificates are self signed. Please do not use TEST certificates in production environment.</p>
     </div>
 
-    <div class="row" id="status-message">
-        <p id="status-message-text">Certificates generated successfully</p>
-    </div>
-
     <form id="cert-form" name="cert-form">
       <div class="row">
         <div class="three columns">
-          <label for="ValidityPeriodInput">Validity period</label>
+          <label for="ValidityPeriodInput">Validity period <span id="required-input-annotation">(required)</span></label>
         </div>
         <div class="nine columns">
-          <input class="u-full-width" type="text" placeholder=365 id="ValidityPeriodInput" name="days">
+          <input class="u-full-width" type="text" value=365 id="ValidityPeriodInput" name="days">
         </div>
       </div>
       <div class="row">
         <div class="three columns">
-          <label for="CountryNameInput">Country Name</label>
+          <label id="non-required-input-annotation" for="CountryNameInput">Country Name</label>
         </div>
         <div class="nine columns">
           <input class="u-full-width" type="text" placeholder="US" id="CountryNameInput" name="country">
@@ -67,7 +63,7 @@
       </div>
       <div class="row">
         <div class="three columns">
-          <label for="StateOrProInput">State or Province Name</label>
+          <label id="non-required-input-annotation" for="StateOrProInput">State or Province Name</label>
         </div>
         <div class="nine columns">
           <input class="u-full-width" type="text" placeholder="CA" id="StateOrProInput" name="state">
@@ -75,7 +71,7 @@
       </div>
       <div class="row">
         <div class="three columns">
-          <label for="LocalityInput">Locality Name</label>
+          <label id="non-required-input-annotation" for="LocalityInput">Locality Name</label>
         </div>
         <div class="nine columns">
           <input class="u-full-width" type="text" placeholder="San Francisco" id="LocalityInput" name="city">
@@ -83,7 +79,7 @@
       </div>
       <div class="row">
         <div class="three columns">
-          <label for="OrganizationNameInput">Organization Name</label>
+          <label id="non-required-input-annotation" for="OrganizationNameInput">Organization Name</label>
         </div>
         <div class="nine columns">
           <input class="u-full-width" type="text" placeholder="Sales" id="OrganizationNameInput" name="org">
@@ -91,7 +87,7 @@
       </div>
       <div class="row">
         <div class="three columns">
-          <label for="OrganizationalUnitInput">Organizational Unit</label>
+          <label id="non-required-input-annotation" for="OrganizationalUnitInput">Organizational Unit</label>
         </div>
         <div class="nine columns">
           <input class="u-full-width" type="text" placeholder="Inside" id="OrganizationalUnitInput" name="orgUnit">
@@ -99,15 +95,15 @@
       </div>
       <div class="row">
         <div class="three columns">
-          <label for="CommonNameInput">Common Name</label>
+          <label for="CommonNameInput">Common Name <span id="required-input-annotation">(required)</span></label>
         </div>
         <div class="nine columns">
-          <input class="u-full-width" type="text" placeholder="mysite.com" id="CommonNameInput" name="cn">
+          <input class="u-full-width" type="text" value="mysite.com" id="CommonNameInput" name="cn">
         </div>
       </div>
       <div class="row">
         <div class="three columns">
-          <label for="EmailAddressInput">Email Address</label>
+          <label id="non-required-input-annotation" for="EmailAddressInput">Email Address</label>
         </div>
         <div class="nine columns">
           <input class="u-full-width" type="email" placeholder="admin@mysite.com" id="EmailAddressInput" name="email">
@@ -115,70 +111,43 @@
       </div>
       <div class="row">
         <div class="three columns">
-          <label for="PFXFilePasswordInput">PFX file password</label>
+          <label for="PFXFilePasswordInput">PFX file password <span id="required-input-annotation">(required)</span></label>
         </div>
         <div class="nine columns">
-          <input class="u-full-width" type="text" placeholder="password" id="PFXFilePasswordInput" name="pfxPass">
+          <input class="u-full-width" type="text" value="password" id="PFXFilePasswordInput" name="pfxPass">
         </div>
       </div>
       <div class="row">
         <input class="button-primary" id="submit-button" type="button" value="Submit" onclick="createCert()">
       </div>
-      <!--
-      <div class="row">
-        <div class="ten columns"></div>
-        <div class="two columns">
-          <input class="button-primary" id="submit-button" type="button" value="Submit" onclick="createCert()">
-        </div>
-      </div>
-      -->
     </form>
+
+    <div class="row" id="status-message">
+        <p id="status-message-text">Certificates generated successfully. Download buttons below.</p>
+    </div>
 
     <div class="row" id="download-buttons">
       <div class="one-half column">
-        <input class="button" type="button" id="download-pfx" value="Download PFX" onclick="downloadPFX()">
+        <a href="#" class="button" type="button" id="download-pfx">Download PFX</a>
       </div>
       <div class="one-half column">
-        <input class="button" type="button" id="download-pem" value="Download PEM" onclick="downloadPEM()">
+        <a href="#" class="button" type="button" id="download-pem">Download PEM</a>
       </div>
     </div>
 
     <div class="row" id="footer">
-      <p>Created by Dima Stopel</p>
+      <p>Created by <a href="https://github.com/dimastopel" target="_blank">Dima Stopel</a></p>
     </div>
-    <!--
-    <div class="row">
-      <table id="demo-table" class="u-full-width">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Age</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Dave Gamache</td>
-            <td>26</td>
-          </tr>
-          <tr>
-            <td>Dwayne Johnson</td>
-            <td>42</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="row">
-      <a class="button" onclick="foo()">Anchor button</a>
-    </div>
-    -->
 
   </div>
 
-<!-- End Document
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
 <script>
+
+document.addEventListener("DOMContentLoaded", function(event) { 
+  //do work
+});
+
 
 function createCert()
 {
@@ -198,8 +167,17 @@ function createCert()
 
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function() { 
-      if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-          defaultCallback(xmlHttp.responseText);
+      if (xmlHttp.readyState === 4)
+      {
+        if (xmlHttp.status === 200)
+        {
+          handleSuccess(xmlHttp.responseText);
+        }
+        else
+        {
+          handleError(xmlHttp.statusText);
+        }
+      }
   }
   xmlHttp.open("POST", "http://localhost:3000/api/create", true); // true for asynchronous 
   xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -208,9 +186,28 @@ function createCert()
 
 }
 
-function defaultCallback()
+function handleSuccess(response_data)
 {
-  console.log("done");
+  console.log(response_data);
+
+  document.getElementById("status-message").classList.add("success-status-message");
+  document.getElementById("status-message").style.visibility = "visible";
+  document.getElementById("download-buttons").style.visibility = "visible";
+
+  var response = JSON.parse(response_data);
+
+  document.getElementById("download-pfx").href = "/api/get/id/" + response.id + "/type/pfx";
+  document.getElementById("download-pem").href = "/api/get/id/" + response.id + "/type/zip";
+}
+
+function handleError(response_data)
+{
+  console.log(response_data);
+  //var response = JSON.parse(response_data);
+
+  document.getElementById("status-message").classList.add("error-status-message");
+  document.getElementById("status-message").style.visibility = "visible";
+  document.getElementById("status-message-text").innerHTML = "Server side error occured: '" + response_data + "'";
 }
 
 function httpGet(theUrl)

@@ -13,6 +13,13 @@
 	text-align: center;
 }
 
+#subnote {
+	font-size: 3rem;
+	color: var(--color-red);
+	font-weight: bold;
+	font-style: italic;
+}
+
 #cert-warning {
 	margin-top: 0%;
 	text-align: center;
@@ -26,25 +33,34 @@
 	margin-bottom: 0%;
 }
 
+#cert-form {
+	margin-top: 5%;
+}
+
 #status-message {
-	margin-top: 3%;
+	margin-top: 7%;
 	text-align: center;
 	color: black;
 	font-weight: bold;
-    border: 3px solid var(--color-green);
     border-radius: 5px;
+    visibility: hidden;
+}
+
+.success-status-message {
+    border: 3px solid var(--color-light-green);
+}
+
+.error-status-message {
+    border: 3px solid var(--color-red);
 }
 
 #status-message-text {
 	margin-bottom: 0%;
 }
 
-#cert-form {
-	margin-top: 5%;
-}
-
 #download-buttons {
-	margin-top: 10%;
+	margin-top: 4%;
+	visibility: hidden;
 }
 
 #download-pfx, #download-pem {
@@ -52,6 +68,9 @@
     margin-left: auto;
     margin-right: auto;
     width: 50%;
+    border: 3px solid var(--color-green);
+    background-color: var(--color-grey);
+    color: black;
 }
 
 
@@ -64,4 +83,13 @@
 #footer {
 	margin-top: 5%;
 	text-align: right;
+}
+
+#required-input-annotation {
+	color:var(--color-green);
+	font-size: 1.2rem;
+}
+
+#non-required-input-annotation {
+	font-weight: normal;
 }
