@@ -178,7 +178,7 @@ function createCert()
         }
       }
   }
-  xmlHttp.open("POST", "http://localhost:3000/api/create", true); // true for asynchronous 
+  xmlHttp.open("POST", "/api/create", true); // true for asynchronous 
   xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
   xmlHttp.send(data);
 
@@ -231,7 +231,7 @@ function httpGetAsync(theUrl, callback)
 
 function foo()
 {
-  httpGetAsync("http://localhost:3000/api/rand", fillTable);
+  httpGetAsync("/api/rand", fillTable);
 }
 
 function fillTable(dataString)
