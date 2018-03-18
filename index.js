@@ -189,6 +189,11 @@ function incCertCount() {
   }
 }
 
-app.listen(3000, function() {
-  console.log('Example app listening on port 3000!')
+var port = 3000
+if (2 in process.argv) {
+  port = process.argv[2]
+}
+
+app.listen(port, function() {
+  console.log('Example app listening on port ' + port)
 })
