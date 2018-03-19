@@ -30,18 +30,24 @@
   <!-- Scripts
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <script src="js/serialize-0.2.min.js"></script>
+  <script src="js/cert-depot.js"></script>
 
 
 </head>
 <body>
   <div class="container">
     <div class="row" id="header">
-        <h1>Certificate Depot <span id="subnote">v2</span></h1>
-        <h4>Generate your SSL certificate now</h4>
+        <h1 id="title-note">
+          Certificate Depot <span id="subnote">v2</span>
+        </h1>
+        <h5 id="title-generate-note">
+          Generate your SSL certificate now
+        </h5>
+        <button id="info-button" class="button open-modal">Why the site was down for so long?</button>
     </div>
 
     <div class="row" id="cert-warning">
-        <p id="cert-warning-text">Certificates are self signed. Please do not use TEST certificates in production environment.</p>
+        <p id="cert-warning-text">Certificates are self signed. Please *do not* use TEST certificates in production environment.</p>
     </div>
 
     <form id="cert-form" name="cert-form">
@@ -134,132 +140,31 @@
         <a href="#" class="button" type="button" id="download-pem">Download PEM</a>
       </div>
     </div>
-
     <div class="row" id="footer">
       <p>This is a work in progress. Please send feedback to <a href="mailto:dima@stopel.org?Subject=cert-depot" target="_top">this email</a>.</p>
     </div>
+
+    <!-- Modal -->
+    <div class="modal">
+      <div class="modal-inner">
+        <div class="modal-content">
+          <div class="modal-close-icon">
+            <a href="javascript:void(0)" class="close-modal"><i class="fa fa-times" aria-hidden="true"></i></a>
+          </div>
+          <div class="modal-content-inner">
+            <h4>Hello, again!</h4>
+            <p>This site was down for a long time. It hapenned because my infrastructure provider 
+            deleted my VM and it took time for me to revive the website. Eventually I rewrote the whole frontend part 
+            and this is still, very much, work in progress. Hope you find it usefull again. 
+            I am very open to feedback - please use my email localted in the footer</p>  
+          </div>
+          <hr class="modal-buttons-seperator">
+          <div class="modal-buttons">
+            <button class="button button-primary close-modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-
 </body>
-<script>
-
-document.addEventListener("DOMContentLoaded", function(event) { 
-  //do work
-});
-
-
-function createCert()
-{
-
-  console.log("click1");
-
-
-  var form = document.querySelector("#cert-form");
-  /*
-  var data = new FormData(form);
-  console.log(data.get("CommonNameInput"));
-  console.log(document.querySelector("#CommonNameInput").value);
-  console.log(document.forms["cert-form"]["CommonNameInput"].value);
-  */
-  var data = serialize(form);
-  console.log(data);
-
-  var xmlHttp = new XMLHttpRequest();
-  xmlHttp.onreadystatechange = function() { 
-      if (xmlHttp.readyState === 4)
-      {
-        if (xmlHttp.status === 200)
-        {
-          handleSuccess(xmlHttp.responseText);
-        }
-        else
-        {
-          handleError(xmlHttp.statusText);
-        }
-      }
-  }
-  xmlHttp.open("POST", "/api/create", true); // true for asynchronous 
-  xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-  xmlHttp.send(data);
-
-
-}
-
-function handleSuccess(response_data)
-{
-  console.log(response_data);
-
-  document.getElementById("status-message").classList.add("success-status-message");
-  document.getElementById("status-message").style.visibility = "visible";
-  document.getElementById("download-buttons").style.visibility = "visible";
-
-  var response = JSON.parse(response_data);
-
-  document.getElementById("download-pfx").href = "/api/get/id/" + response.id + "/type/pfx";
-  document.getElementById("download-pem").href = "/api/get/id/" + response.id + "/type/zip";
-}
-
-function handleError(response_data)
-{
-  console.log(response_data);
-  //var response = JSON.parse(response_data);
-
-  document.getElementById("status-message").classList.add("error-status-message");
-  document.getElementById("status-message").style.visibility = "visible";
-  document.getElementById("status-message-text").innerHTML = "Server side error occured: '" + response_data + "'";
-}
-
-function httpGet(theUrl)
-{
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
-    xmlHttp.send( null );
-    return xmlHttp.responseText;
-}
-
-function httpGetAsync(theUrl, callback)
-{
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
-    xmlHttp.send(null);
-}
-
-
-function foo()
-{
-  httpGetAsync("/api/rand", fillTable);
-}
-
-function fillTable(dataString)
-{
-  var table = document.getElementById("demo-table");
-  while ( table.rows.length > 0 )
-  {
-    table.deleteRow(0);
-  }
-
-  var data = JSON.parse(dataString);
-  for (var prop in data) {
-      if (data.hasOwnProperty(prop)) {
-        // Create an empty <tr> element and add it to the 1st position of the table:
-        var row = table.insertRow(0);
-
-        // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-        var cell1 = row.insertCell(0);
-        var cell2 = row.insertCell(1);
-
-        // Add some text to the new cells:
-        cell1.innerText = prop;
-        cell2.innerText = data[prop];
-      }
-  }
-}
-
-</script>
-
-
 </html>
