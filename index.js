@@ -189,11 +189,7 @@ function incCertCount() {
   }
 }
 
-var port = 3000
-if (2 in process.argv) {
-  port = process.argv[2]
-}
-
+var port = process.env.NODE_PORT || 3000;
 app.listen(port, function() {
   console.log('Example app listening on port ' + port)
 })
