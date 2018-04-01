@@ -95,9 +95,13 @@ input:invalid {
     width: 250px;
 }
 
+#cert-count {
+    font-weight: bold;
+}
+
 #footer {
 	margin-top: 5%;
-	text-align: right;
+	text-align: center;
 }
 
 #required-input-annotation {

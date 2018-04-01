@@ -86,6 +86,22 @@ document.addEventListener("DOMContentLoaded", function(event) {
     e.stopPropagation();
   });
 
+  //get certs count
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function() { 
+      if (xmlHttp.readyState === 4)
+      {
+        if (xmlHttp.status === 200)
+        {
+          var response = JSON.parse(xmlHttp.responseText);
+          var cert_count = document.getElementById("cert-count");
+          cert_count.innerHTML = response.count;
+        }
+      }
+  }
+  xmlHttp.open("GET", "/api/count", true); // true for asynchronous 
+  xmlHttp.send(null);
+
 });
 
 
