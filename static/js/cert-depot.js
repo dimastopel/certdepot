@@ -46,10 +46,10 @@ function createCert()
 
 function handleSuccess(response_data)
 {
-  showStatus(true, "Please download the certificate using one of the buttons below");
-  document.getElementById("download-buttons").style.visibility = "visible";
-
   var response = JSON.parse(response_data);
+
+  showStatus(true, "Please download the certificate using one of the buttons below. [CertId: " + response.id.substring(0,8) + "...]");
+  document.getElementById("download-buttons").style.visibility = "visible";
 
   document.getElementById("download-pfx").href = "/api/get/id/" + response.id + "/type/pfx";
   document.getElementById("download-pem").href = "/api/get/id/" + response.id + "/type/zip";

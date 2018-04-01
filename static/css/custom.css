@@ -16,9 +16,8 @@
 }
 
 input:invalid {
-  border: 2px solid red;
+  border: 2px solid var(--color-red);
 }
-
 
 #header {
 	margin-top: 5%;
@@ -57,16 +56,17 @@ input:invalid {
 	text-align: center;
 	color: black;
 	font-weight: bold;
-  border-radius: 5px;
   /*visibility: hidden;*/
 }
 
 .success-status-message {
     border: 3px solid var(--color-green);
+    border-radius: 5px;
 }
 
 .error-status-message {
     border: 3px solid var(--color-red);
+    border-radius: 5px;
 }
 
 #status-message-text {
