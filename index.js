@@ -97,14 +97,14 @@ app.post('/api/create', function (req, res) {
                     res.status(500).send({error: 'Failed to create ZIP archive: ' + error});
                     return;
                   }
+                  incCertCount()
+                  res.header('Content-Type', 'application/json');
+                  res.send({id:id});
                   console.log('Successfully generated certs for CN: ' + cn + ' ID:' + id);
                 });
             });
         });
     });
-  incCertCount()
-  res.header('Content-Type', 'application/json');
-  res.send({id:id});
 });
 
 app.get('/api/get/id/:certId/type/:certType', function(req, res) {

@@ -56,7 +56,7 @@
           <label for="ValidityPeriodInput">Validity period <span id="required-input-annotation">(required)</span></label>
         </div>
         <div class="nine columns">
-          <input class="u-full-width" type="text" value=365 id="ValidityPeriodInput" name="days">
+          <input class="u-full-width" type="text" value=365 id="ValidityPeriodInput" name="days" required pattern="[0-9]+">
         </div>
       </div>
       <div class="row">
@@ -64,7 +64,7 @@
           <label id="non-required-input-annotation" for="CountryNameInput">Country Name</label>
         </div>
         <div class="nine columns">
-          <input class="u-full-width" type="text" placeholder="US" id="CountryNameInput" name="country">
+          <input class="u-full-width" type="text" placeholder="US" id="CountryNameInput" name="country" pattern="[A-Z]{3}">
         </div>
       </div>
       <div class="row">
@@ -72,7 +72,7 @@
           <label id="non-required-input-annotation" for="StateOrProInput">State or Province Name</label>
         </div>
         <div class="nine columns">
-          <input class="u-full-width" type="text" placeholder="CA" id="StateOrProInput" name="state">
+          <input class="u-full-width" type="text" placeholder="CA" id="StateOrProInput" name="state" pattern="[ -~]+">
         </div>
       </div>
       <div class="row">
@@ -80,7 +80,7 @@
           <label id="non-required-input-annotation" for="LocalityInput">Locality Name</label>
         </div>
         <div class="nine columns">
-          <input class="u-full-width" type="text" placeholder="San Francisco" id="LocalityInput" name="city">
+          <input class="u-full-width" type="text" placeholder="San Francisco" id="LocalityInput" name="city" pattern="[ -~]+">
         </div>
       </div>
       <div class="row">
@@ -88,7 +88,7 @@
           <label id="non-required-input-annotation" for="OrganizationNameInput">Organization Name</label>
         </div>
         <div class="nine columns">
-          <input class="u-full-width" type="text" placeholder="Sales" id="OrganizationNameInput" name="org">
+          <input class="u-full-width" type="text" placeholder="Sales" id="OrganizationNameInput" name="org" pattern="[ -~]+">
         </div>
       </div>
       <div class="row">
@@ -96,7 +96,7 @@
           <label id="non-required-input-annotation" for="OrganizationalUnitInput">Organizational Unit</label>
         </div>
         <div class="nine columns">
-          <input class="u-full-width" type="text" placeholder="Inside" id="OrganizationalUnitInput" name="orgUnit">
+          <input class="u-full-width" type="text" placeholder="Inside" id="OrganizationalUnitInput" name="orgUnit" pattern="[ -~]+">
         </div>
       </div>
       <div class="row">
@@ -104,7 +104,7 @@
           <label for="CommonNameInput">Common Name <span id="required-input-annotation">(required)</span></label>
         </div>
         <div class="nine columns">
-          <input class="u-full-width" type="text" value="mysite.com" id="CommonNameInput" name="cn">
+          <input class="u-full-width" type="text" value="mysite.com" id="CommonNameInput" name="cn" required pattern="[ -~]+">
         </div>
       </div>
       <div class="row">
@@ -112,7 +112,7 @@
           <label id="non-required-input-annotation" for="EmailAddressInput">Email Address</label>
         </div>
         <div class="nine columns">
-          <input class="u-full-width" type="email" placeholder="admin@mysite.com" id="EmailAddressInput" name="email">
+          <input class="u-full-width" type="email" placeholder="admin@mysite.com" id="EmailAddressInput" name="email" pattern="[ -~]+">
         </div>
       </div>
       <div class="row">
@@ -120,16 +120,16 @@
           <label for="PFXFilePasswordInput">PFX file password <span id="required-input-annotation">(required)</span></label>
         </div>
         <div class="nine columns">
-          <input class="u-full-width" type="text" value="password" id="PFXFilePasswordInput" name="pfxPass">
+          <input class="u-full-width" type="text" value="password" id="PFXFilePasswordInput" name="pfxPass" required pattern="[ -~]+">
         </div>
       </div>
       <div class="row">
-        <input class="button-primary" id="submit-button" type="button" value="Submit" onclick="createCert()">
+        <input class="button-primary" id="submit-button" type="button" value="Generate Certificates" onclick="createCert()">
       </div>
     </form>
 
     <div class="row" id="status-message">
-        <p id="status-message-text">Certificates generated successfully. Download buttons below.</p>
+        <p id="status-message-text" class="success-status-message">Please enter certificate details and click the button to generate</p>
     </div>
 
     <div class="row" id="download-buttons">

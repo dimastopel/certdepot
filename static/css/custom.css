@@ -15,6 +15,9 @@
 	--color-light-red : #ec7063;
 }
 
+input:invalid {
+  border: 2px solid red;
+}
 
 
 #header {
@@ -54,8 +57,8 @@
 	text-align: center;
 	color: black;
 	font-weight: bold;
-    border-radius: 5px;
-    visibility: hidden;
+  border-radius: 5px;
+  /*visibility: hidden;*/
 }
 
 .success-status-message {
@@ -89,7 +92,7 @@
 #submit-button {
     position: absolute;
     right: 0px;
-    width: 150px;
+    width: 250px;
 }
 
 #footer {

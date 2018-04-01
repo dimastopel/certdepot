@@ -1,36 +1,52 @@
 
+function showStatus(success, message) {
+  var status = document.getElementById("status-message");
 
+  if (success && !status.classList.contains("success-status-message")) {
+    status.classList.remove("error-status-message")
+    status.classList.add("success-status-message");
+  }
+
+  if (!success && !status.classList.contains("error-status-message")){
+    status.classList.remove("success-status-message")
+    status.classList.add("error-status-message");
+  }
+
+  //status.style.visibility = "visible";
+  status.innerHTML = (success ? "SUCCESS: " : "ERROR: ") + message;
+}
 function createCert()
 {
 
   var form = document.querySelector("#cert-form");
   var data = serialize(form);
 
-  var xmlHttp = new XMLHttpRequest();
-  xmlHttp.onreadystatechange = function() { 
-      if (xmlHttp.readyState === 4)
-      {
-        if (xmlHttp.status === 200)
+  if (!form.checkValidity || form.checkValidity()) {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState === 4)
         {
-          handleSuccess(xmlHttp.responseText);
+          if (xmlHttp.status === 200)
+          {
+            handleSuccess(xmlHttp.responseText);
+          }
+          else
+          {
+            handleError(xmlHttp.statusText);
+          }
         }
-        else
-        {
-          handleError(xmlHttp.statusText);
-        }
-      }
+    }
+    xmlHttp.open("POST", "/api/create", true); // true for asynchronous 
+    xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xmlHttp.send(data);
+  } else {
+    showStatus(false, "Please make sure all form fields are valid");
   }
-  xmlHttp.open("POST", "/api/create", true); // true for asynchronous 
-  xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-  xmlHttp.send(data);
-
-
 }
 
 function handleSuccess(response_data)
 {
-  document.getElementById("status-message").classList.add("success-status-message");
-  document.getElementById("status-message").style.visibility = "visible";
+  showStatus(true, "Please download the certificate using one of the buttons below");
   document.getElementById("download-buttons").style.visibility = "visible";
 
   var response = JSON.parse(response_data);
@@ -42,60 +58,7 @@ function handleSuccess(response_data)
 function handleError(response_data)
 {
   //var response = JSON.parse(response_data);
-
-  document.getElementById("status-message").classList.add("error-status-message");
-  document.getElementById("status-message").style.visibility = "visible";
-  document.getElementById("status-message-text").innerHTML = "Server side error occured: '" + response_data + "'";
-}
-
-function httpGet(theUrl)
-{
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
-    xmlHttp.send( null );
-    return xmlHttp.responseText;
-}
-
-function httpGetAsync(theUrl, callback)
-{
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
-    xmlHttp.send(null);
-}
-
-
-function foo()
-{
-  httpGetAsync("/api/rand", fillTable);
-}
-
-function fillTable(dataString)
-{
-  var table = document.getElementById("demo-table");
-  while ( table.rows.length > 0 )
-  {
-    table.deleteRow(0);
-  }
-
-  var data = JSON.parse(dataString);
-  for (var prop in data) {
-      if (data.hasOwnProperty(prop)) {
-        // Create an empty <tr> element and add it to the 1st position of the table:
-        var row = table.insertRow(0);
-
-        // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-        var cell1 = row.insertCell(0);
-        var cell2 = row.insertCell(1);
-
-        // Add some text to the new cells:
-        cell1.innerText = prop;
-        cell2.innerText = data[prop];
-      }
-  }
+  showStatus(false, "Server side error occured: '" + response_data + "'");
 }
 
 // Modal
