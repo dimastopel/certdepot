@@ -1,0 +1,11 @@
+/* Custom styles for Certificate Depot */
+
+/* Uppercase country input */
+#country {
+    text-transform: uppercase;
+}
+
+/* Smooth transitions between steps */
+#step1, #step2 {
+    transition: opacity 0.15s ease;
+}

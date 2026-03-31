@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Depot - Free Self-Signed SSL Certificates</title>
+    <meta name="description" content="Generate free self-signed SSL/TLS certificates instantly. No signup required.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200">
+        <div class="max-w-3xl mx-auto px-4 py-6 text-center">
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Certificate Depot</h1>
+            <p class="mt-1 text-gray-500 text-sm">Free self-signed SSL/TLS certificates in seconds</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex items-start justify-center px-4 py-10">
+        <div class="w-full max-w-lg">
+
+            <!-- Step 1: Common Name -->
+            <div id="step1" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-50 mb-3">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-900">Generate a Certificate</h2>
+                    <p class="text-sm text-gray-500 mt-1">Enter the domain name or IP address</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label for="commonName" class="block text-sm font-medium text-gray-700 mb-1">Common Name</label>
+                        <input type="text" id="commonName" placeholder="e.g. example.com or 192.168.1.1"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-lg"
+                               maxlength="253" autocomplete="off" autofocus>
+                        <p id="cnError" class="text-red-500 text-xs mt-1 hidden">Please enter a common name</p>
+                    </div>
+
+                    <button id="nextBtn" type="button"
+                            class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-base">
+                        Next
+                    </button>
+                </div>
+
+                <div id="counterDisplay" class="text-center mt-6 text-sm text-gray-400">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+
+            <!-- Step 2: Options & Generate -->
+            <div id="step2" class="hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                    <!-- Common Name display (read-only) -->
+                    <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+                        <div>
+                            <span class="text-xs font-medium text-gray-400 uppercase tracking-wide">Common Name</span>
+                            <p id="cnDisplay" class="text-lg font-semibold text-gray-900 mt-0.5"></p>
+                        </div>
+                        <button id="backBtn" type="button" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                            &larr; Back
+                        </button>
+                    </div>
+
+                    <h2 class="text-lg font-semibold text-gray-900 mb-1">Optional Details</h2>
+                    <p class="text-sm text-gray-500 mb-5">All fields below are optional. Defaults will be used if left empty.</p>
+
+                    <div class="space-y-4">
+                        <!-- Key Type & Validity Row -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="keyType" class="block text-sm font-medium text-gray-700 mb-1">Key Type</label>
+                                <select id="keyType"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm bg-white">
+                                    <option value="rsa2048" selected>RSA 2048</option>
+                                    <option value="rsa4096">RSA 4096</option>
+                                    <option value="ecdsaP256">ECDSA P-256</option>
+                                    <option value="ecdsaP384">ECDSA P-384</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="validityDays" class="block text-sm font-medium text-gray-700 mb-1">Validity (days)</label>
+                                <input type="number" id="validityDays" value="365" min="1" max="3650"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                            </div>
+                        </div>
+
+                        <!-- Country & State Row -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                                <input type="text" id="country" placeholder="US" maxlength="2"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm uppercase">
+                            </div>
+                            <div>
+                                <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State / Province</label>
+                                <input type="text" id="state" placeholder="California" maxlength="64"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                            </div>
+                        </div>
+
+                        <!-- City & Organization Row -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                <input type="text" id="city" placeholder="San Francisco" maxlength="64"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                            </div>
+                            <div>
+                                <label for="organization" class="block text-sm font-medium text-gray-700 mb-1">Organization</label>
+                                <input type="text" id="organization" placeholder="My Company" maxlength="64"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                            </div>
+                        </div>
+
+                        <!-- Org Unit & Email Row -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="orgUnit" class="block text-sm font-medium text-gray-700 mb-1">Org Unit</label>
+                                <input type="text" id="orgUnit" placeholder="Engineering" maxlength="64"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" id="email" placeholder="admin@example.com" maxlength="254"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                            </div>
+                        </div>
+
+                        <!-- Output Format -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Output Format</label>
+                            <div class="flex gap-3">
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="outputFormat" value="zip" checked class="sr-only peer">
+                                    <div class="text-center py-2.5 px-4 border-2 border-gray-300 rounded-lg peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 transition-colors text-sm font-medium text-gray-600">
+                                        ZIP <span class="text-xs font-normal">(PEM files)</span>
+                                    </div>
+                                </label>
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="outputFormat" value="pfx" class="sr-only peer">
+                                    <div class="text-center py-2.5 px-4 border-2 border-gray-300 rounded-lg peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 transition-colors text-sm font-medium text-gray-600">
+                                        PFX <span class="text-xs font-normal">(PKCS#12)</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- PFX Password (hidden by default) -->
+                        <div id="pfxPasswordGroup" class="hidden">
+                            <label for="pfxPassword" class="block text-sm font-medium text-gray-700 mb-1">PFX Password</label>
+                            <input type="password" id="pfxPassword" placeholder="Minimum 4 characters" minlength="4" maxlength="128"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                            <p id="pfxError" class="text-red-500 text-xs mt-1 hidden">Password must be at least 4 characters</p>
+                        </div>
+
+                        <!-- Generate Button -->
+                        <button id="generateBtn" type="button"
+                                class="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors text-base mt-2">
+                            Generate Certificate
+                        </button>
+
+                        <!-- Error display -->
+                        <p id="generateError" class="text-red-500 text-sm text-center hidden"></p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-200 bg-white">
+        <div class="max-w-3xl mx-auto px-4 py-4 text-center text-xs text-gray-400">
+            Certificate Depot &mdash; Free self-signed certificates for development and testing
+        </div>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

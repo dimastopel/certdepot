@@ -1,4 +1,13 @@
-node_modules
-certs
-feedback
+# Binary
+cert-depot
+
+# Runtime data
+data/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
 .DS_Store
