@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://cert-depot.com/sitemap.xml

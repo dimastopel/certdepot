@@ -52,6 +52,18 @@ func main() {
 	fileServer := http.FileServer(http.FS(staticFS))
 	mux.Handle("GET /static/", http.StripPrefix("/static/", fileServer))
 
+	// Serve robots.txt and sitemap.xml at root
+	mux.HandleFunc("GET /robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		data, _ := staticFiles.ReadFile("static/robots.txt")
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.Write(data)
+	})
+	mux.HandleFunc("GET /sitemap.xml", func(w http.ResponseWriter, r *http.Request) {
+		data, _ := staticFiles.ReadFile("static/sitemap.xml")
+		w.Header().Set("Content-Type", "application/xml; charset=utf-8")
+		w.Write(data)
+	})
+
 	// Serve index.html at root
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {

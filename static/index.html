@@ -3,8 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Certificate Depot - Free Self-Signed SSL Certificates</title>
-    <meta name="description" content="Generate free self-signed SSL/TLS certificates instantly. No signup required.">
+    <title>Free Self-Signed SSL Certificate Generator | Certificate Depot</title>
+    <meta name="description" content="Generate free self-signed SSL/TLS certificates instantly. RSA &amp; ECDSA keys, Subject Alternative Names, ZIP &amp; PFX download. No signup, no installation required.">
+    <link rel="canonical" href="https://cert-depot.com/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://cert-depot.com/">
+    <meta property="og:title" content="Free Self-Signed SSL Certificate Generator | Certificate Depot">
+    <meta property="og:description" content="Generate free self-signed SSL/TLS certificates instantly. RSA &amp; ECDSA keys, SAN support, ZIP &amp; PFX download. No signup required.">
+    <meta property="og:site_name" content="Certificate Depot">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Free Self-Signed SSL Certificate Generator">
+    <meta name="twitter:description" content="Generate self-signed SSL/TLS certificates instantly. RSA &amp; ECDSA, SAN support, ZIP &amp; PFX. Free, no signup.">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Certificate Depot",
+        "url": "https://cert-depot.com",
+        "description": "Free online tool to generate self-signed SSL/TLS certificates with RSA or ECDSA keys, Subject Alternative Names, and ZIP or PFX download.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/css/style.css">
@@ -15,7 +47,7 @@
     <header class="cd-header py-10">
         <div class="max-w-4xl mx-auto px-6 text-center">
             <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Certificate Depot</h1>
-            <p class="mt-3 text-base sm:text-lg font-medium">Free self-signed SSL/TLS certificates in seconds</p>
+            <p class="mt-3 text-base sm:text-lg font-medium">Free Self-Signed SSL/TLS Certificate Generator</p>
         </div>
     </header>
 
@@ -182,6 +214,110 @@
 
         </div>
     </main>
+
+    <!-- FAQ Section -->
+    <section class="max-w-2xl mx-auto px-4 sm:px-6 pb-12">
+        <h2 class="cd-heading text-xl font-bold mb-6 text-center">Frequently Asked Questions</h2>
+        <div class="space-y-4">
+            <details class="cd-faq-item bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <summary class="cd-label px-6 py-4 cursor-pointer font-semibold text-sm">What is a self-signed certificate?</summary>
+                <div class="px-6 pb-4 text-sm text-gray-600 leading-relaxed">
+                    A self-signed certificate is an SSL/TLS certificate that is signed by its own creator rather than a trusted Certificate Authority (CA). It provides the same encryption as a CA-signed certificate, but browsers will show a warning because the identity hasn't been verified by a third party. They are ideal for development, testing, internal tools, and learning.
+                </div>
+            </details>
+            <details class="cd-faq-item bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <summary class="cd-label px-6 py-4 cursor-pointer font-semibold text-sm">What key types are supported?</summary>
+                <div class="px-6 pb-4 text-sm text-gray-600 leading-relaxed">
+                    Certificate Depot supports RSA keys (2048-bit and 4096-bit) and ECDSA keys (P-256 and P-384 curves). RSA 2048 is the most widely compatible option. ECDSA keys are smaller and faster, making them a good choice for modern systems. All keys are generated using cryptographically secure random number generation.
+                </div>
+            </details>
+            <details class="cd-faq-item bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <summary class="cd-label px-6 py-4 cursor-pointer font-semibold text-sm">What are Subject Alternative Names (SANs)?</summary>
+                <div class="px-6 pb-4 text-sm text-gray-600 leading-relaxed">
+                    SANs allow a single certificate to cover multiple domain names and IP addresses. For example, you can create one certificate for <code>example.com</code>, <code>www.example.com</code>, and <code>*.example.com</code>. Modern browsers require SANs and ignore the Common Name field for validation, so adding SANs is highly recommended.
+                </div>
+            </details>
+            <details class="cd-faq-item bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <summary class="cd-label px-6 py-4 cursor-pointer font-semibold text-sm">What is the difference between ZIP and PFX download?</summary>
+                <div class="px-6 pb-4 text-sm text-gray-600 leading-relaxed">
+                    <strong>ZIP</strong> contains two separate PEM files: the certificate and the private key. This is the most common format for Apache, Nginx, and most Linux-based servers. <strong>PFX</strong> (also called PKCS#12) bundles the certificate and private key into a single password-protected file. This format is commonly used with IIS, Windows, and Java applications.
+                </div>
+            </details>
+            <details class="cd-faq-item bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <summary class="cd-label px-6 py-4 cursor-pointer font-semibold text-sm">Is it safe to generate certificates here?</summary>
+                <div class="px-6 pb-4 text-sm text-gray-600 leading-relaxed">
+                    Certificates are generated in memory on the server and streamed directly to your browser. No private keys are stored or logged. However, since the private key is generated server-side, you should only use certificates from this tool for development and testing purposes. For production use, generate certificates locally using tools like OpenSSL or obtain them from a trusted Certificate Authority.
+                </div>
+            </details>
+            <details class="cd-faq-item bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <summary class="cd-label px-6 py-4 cursor-pointer font-semibold text-sm">How do I install the certificate?</summary>
+                <div class="px-6 pb-4 text-sm text-gray-600 leading-relaxed">
+                    <strong>Nginx:</strong> Point <code>ssl_certificate</code> to <code>certificate.pem</code> and <code>ssl_certificate_key</code> to <code>private-key.pem</code>.<br>
+                    <strong>Apache:</strong> Use <code>SSLCertificateFile</code> and <code>SSLCertificateKeyFile</code> directives.<br>
+                    <strong>Node.js:</strong> Pass the PEM files to <code>https.createServer()</code> options.<br>
+                    <strong>Windows/IIS:</strong> Import the PFX file through IIS Manager or the certificate MMC snap-in.
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <!-- FAQ Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is a self-signed certificate?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "A self-signed certificate is an SSL/TLS certificate signed by its own creator rather than a trusted Certificate Authority. It provides the same encryption but browsers will show a warning. Ideal for development, testing, and internal tools."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What key types are supported?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Certificate Depot supports RSA keys (2048-bit and 4096-bit) and ECDSA keys (P-256 and P-384 curves). RSA 2048 is the most compatible. ECDSA keys are smaller and faster."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What are Subject Alternative Names (SANs)?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "SANs allow a single certificate to cover multiple domain names and IP addresses. Modern browsers require SANs and ignore the Common Name field for validation."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is the difference between ZIP and PFX download?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "ZIP contains separate PEM files (certificate and private key) for Apache, Nginx, and Linux servers. PFX (PKCS#12) bundles both into a single password-protected file for IIS, Windows, and Java."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is it safe to generate certificates here?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Certificates are generated in memory and streamed directly to your browser. No private keys are stored. However, since keys are generated server-side, use these certificates only for development and testing."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I install the certificate?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "For Nginx: use ssl_certificate and ssl_certificate_key directives. For Apache: use SSLCertificateFile and SSLCertificateKeyFile. For Node.js: pass PEM files to https.createServer(). For Windows/IIS: import the PFX file through IIS Manager."
+                }
+            }
+        ]
+    }
+    </script>
 
     <!-- Footer -->
     <footer class="cd-footer py-6">

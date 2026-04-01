@@ -134,6 +134,32 @@
     opacity: 0.6;
 }
 
+/* FAQ */
+.cd-faq-item summary {
+    list-style: none;
+    color: var(--deep-space);
+}
+.cd-faq-item summary::-webkit-details-marker { display: none; }
+.cd-faq-item summary::before {
+    content: '+';
+    display: inline-block;
+    width: 1.25rem;
+    font-weight: 700;
+    color: var(--blue-green);
+    margin-right: 0.5rem;
+    transition: transform 0.2s;
+}
+.cd-faq-item[open] summary::before {
+    content: '\2212';
+}
+.cd-faq-item code {
+    background: rgba(142, 202, 230, 0.15);
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.25rem;
+    font-size: 0.85em;
+    color: var(--deep-space);
+}
+
 /* Uppercase country input */
 #country { text-transform: uppercase; }
 
