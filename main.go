@@ -52,10 +52,15 @@ func main() {
 	fileServer := http.FileServer(http.FS(staticFS))
 	mux.Handle("GET /static/", http.StripPrefix("/static/", fileServer))
 
-	// Serve robots.txt and sitemap.xml at root
+	// Serve verification and SEO files at root
 	mux.HandleFunc("GET /robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		data, _ := staticFiles.ReadFile("static/robots.txt")
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.Write(data)
+	})
+	mux.HandleFunc("GET /google7bac6a38513c9ab9.html", func(w http.ResponseWriter, r *http.Request) {
+		data, _ := staticFiles.ReadFile("static/google7bac6a38513c9ab9.html")
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Write(data)
 	})
 	mux.HandleFunc("GET /sitemap.xml", func(w http.ResponseWriter, r *http.Request) {
