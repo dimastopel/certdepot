@@ -17,9 +17,8 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch("/api/stats")
         .then(function (r) { return r.json(); })
         .then(function (data) {
-            if (data.certificatesGenerated > 0) {
-                counterDisplay.textContent = data.certificatesGenerated.toLocaleString() + " certificates generated so far";
-            }
+            var n = data.certificatesGenerated || 0;
+            counterDisplay.textContent = n.toLocaleString() + " certificate" + (n !== 1 ? "s" : "") + " generated so far";
         })
         .catch(function () {});
 
@@ -51,9 +50,22 @@ document.addEventListener("DOMContentLoaded", function () {
         commonNameInput.focus();
     });
 
-    // Toggle PFX password field
+    // Toggle PFX password field and format option styling
+    function updateFormatToggle() {
+        document.querySelectorAll('.cd-format-option').forEach(function (div) {
+            var radio = div.parentElement.querySelector('input[type="radio"]');
+            if (radio.checked) {
+                div.classList.add('active');
+            } else {
+                div.classList.remove('active');
+            }
+        });
+    }
+    updateFormatToggle();
+
     document.querySelectorAll('input[name="outputFormat"]').forEach(function (radio) {
         radio.addEventListener("change", function () {
+            updateFormatToggle();
             if (this.value === "pfx") {
                 pfxPasswordGroup.classList.remove("hidden");
                 pfxPasswordInput.focus();
@@ -83,6 +95,11 @@ document.addEventListener("DOMContentLoaded", function () {
             validityDays: parseInt(document.getElementById("validityDays").value, 10) || 365,
             outputFormat: outputFormat
         };
+
+        // Add SANs if provided
+        var sansRaw = document.getElementById("sans").value.split("\n");
+        var sans = sansRaw.map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+        if (sans.length > 0) payload.sans = sans;
 
         // Add optional fields only if filled
         var optionals = {
@@ -142,9 +159,8 @@ document.addEventListener("DOMContentLoaded", function () {
             fetch("/api/stats")
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
-                    if (data.certificatesGenerated > 0) {
-                        counterDisplay.textContent = data.certificatesGenerated.toLocaleString() + " certificates generated so far";
-                    }
+                    var n = data.certificatesGenerated || 0;
+                    counterDisplay.textContent = n.toLocaleString() + " certificate" + (n !== 1 ? "s" : "") + " generated so far";
                 })
                 .catch(function () {});
         })

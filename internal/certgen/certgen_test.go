@@ -147,6 +147,101 @@ func TestGenerateDNSSAN(t *testing.T) {
 	}
 }
 
+func TestGenerateWithSANs(t *testing.T) {
+	result, err := Generate(Request{
+		CommonName:   "example.com",
+		ValidityDays: 30,
+		KeyType:      RSA2048,
+		OutputFormat: FormatZIP,
+		SANs:         []string{"www.example.com", "api.example.com", "10.0.0.1"},
+	})
+	if err != nil {
+		t.Fatalf("Generate failed: %v", err)
+	}
+
+	cert, _ := extractZIP(t, result.Data)
+
+	// CN should be included as DNS SAN automatically
+	expectedDNS := []string{"example.com", "www.example.com", "api.example.com"}
+	if len(cert.DNSNames) != len(expectedDNS) {
+		t.Fatalf("expected %d DNS SANs, got %d: %v", len(expectedDNS), len(cert.DNSNames), cert.DNSNames)
+	}
+	for i, want := range expectedDNS {
+		if cert.DNSNames[i] != want {
+			t.Errorf("DNS SAN[%d] = %q, want %q", i, cert.DNSNames[i], want)
+		}
+	}
+
+	// IP SAN
+	if len(cert.IPAddresses) != 1 || cert.IPAddresses[0].String() != "10.0.0.1" {
+		t.Errorf("expected IP SAN 10.0.0.1, got %v", cert.IPAddresses)
+	}
+}
+
+func TestGenerateWithSANs_DuplicateCN(t *testing.T) {
+	result, err := Generate(Request{
+		CommonName:   "example.com",
+		ValidityDays: 30,
+		KeyType:      RSA2048,
+		OutputFormat: FormatZIP,
+		SANs:         []string{"example.com", "other.com"}, // CN duplicated in SANs
+	})
+	if err != nil {
+		t.Fatalf("Generate failed: %v", err)
+	}
+
+	cert, _ := extractZIP(t, result.Data)
+	// CN should not be duplicated
+	if len(cert.DNSNames) != 2 {
+		t.Errorf("expected 2 DNS SANs (deduped CN), got %d: %v", len(cert.DNSNames), cert.DNSNames)
+	}
+}
+
+func TestGenerateWithSANs_Wildcard(t *testing.T) {
+	result, err := Generate(Request{
+		CommonName:   "example.com",
+		ValidityDays: 30,
+		KeyType:      RSA2048,
+		OutputFormat: FormatZIP,
+		SANs:         []string{"*.example.com"},
+	})
+	if err != nil {
+		t.Fatalf("Generate failed: %v", err)
+	}
+
+	cert, _ := extractZIP(t, result.Data)
+	found := false
+	for _, dns := range cert.DNSNames {
+		if dns == "*.example.com" {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("expected wildcard SAN *.example.com in %v", cert.DNSNames)
+	}
+}
+
+func TestGenerateWithSANs_IPOnly(t *testing.T) {
+	result, err := Generate(Request{
+		CommonName:   "10.0.0.1",
+		ValidityDays: 30,
+		KeyType:      RSA2048,
+		OutputFormat: FormatZIP,
+		SANs:         []string{"10.0.0.2", "192.168.1.1"},
+	})
+	if err != nil {
+		t.Fatalf("Generate failed: %v", err)
+	}
+
+	cert, _ := extractZIP(t, result.Data)
+	if len(cert.DNSNames) != 0 {
+		t.Errorf("expected no DNS SANs, got %v", cert.DNSNames)
+	}
+	if len(cert.IPAddresses) != 3 {
+		t.Errorf("expected 3 IP SANs, got %d: %v", len(cert.IPAddresses), cert.IPAddresses)
+	}
+}
+
 func TestSanitizeFilename(t *testing.T) {
 	tests := []struct {
 		input, expected string

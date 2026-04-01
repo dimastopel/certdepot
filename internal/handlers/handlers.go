@@ -32,7 +32,8 @@ type generateRequest struct {
 	ValidityDays int    `json:"validityDays"`
 	KeyType      string `json:"keyType"`
 	OutputFormat string `json:"outputFormat"`
-	PFXPassword  string `json:"pfxPassword"`
+	PFXPassword  string   `json:"pfxPassword"`
+	SANs         []string `json:"sans"`
 }
 
 type errorResponse struct {
@@ -129,6 +130,19 @@ func (h *Handlers) Generate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate and sanitize SANs
+	if len(req.SANs) > 50 {
+		writeError(w, http.StatusBadRequest, "maximum 50 Subject Alternative Names allowed")
+		return
+	}
+	var sanitizedSANs []string
+	for _, san := range req.SANs {
+		san = sanitizeString(san, 253)
+		if san != "" {
+			sanitizedSANs = append(sanitizedSANs, san)
+		}
+	}
+
 	result, err := certgen.Generate(certgen.Request{
 		CommonName:   req.CommonName,
 		Organization: req.Organization,
@@ -141,6 +155,7 @@ func (h *Handlers) Generate(w http.ResponseWriter, r *http.Request) {
 		KeyType:      keyType,
 		OutputFormat: outputFormat,
 		PFXPassword:  req.PFXPassword,
+		SANs:         sanitizedSANs,
 	})
 	if err != nil {
 		log.Printf("ERROR: certificate generation failed: %v", err)

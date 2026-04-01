@@ -1,11 +1,141 @@
-/* Custom styles for Certificate Depot */
+/* Certificate Depot - Color Palette */
+:root {
+    --sky-blue: #8ecae6;
+    --blue-green: #219ebc;
+    --deep-space: #023047;
+    --amber-flame: #ffb703;
+    --tiger-orange: #fb8500;
+}
+
+/* Header */
+.cd-header {
+    background: linear-gradient(135deg, var(--deep-space) 0%, #04506e 100%);
+}
+.cd-header h1 {
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.cd-header p {
+    color: var(--sky-blue);
+}
+
+/* Card */
+.cd-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-top: 4px solid var(--blue-green);
+    border-radius: 1rem;
+    box-shadow: 0 4px 24px rgba(2, 48, 71, 0.08);
+}
+
+/* Icon circle */
+.cd-icon {
+    background: linear-gradient(135deg, var(--sky-blue) 0%, var(--blue-green) 100%);
+    color: #ffffff;
+}
+
+/* Headings */
+.cd-heading { color: var(--deep-space); }
+
+/* Labels */
+.cd-label { color: var(--deep-space); }
+
+/* Inputs */
+.cd-input {
+    border: 2px solid #e2e8f0;
+    border-radius: 0.75rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.cd-input:focus {
+    border-color: var(--blue-green);
+    box-shadow: 0 0 0 3px rgba(33, 158, 188, 0.15);
+    outline: none;
+}
+
+/* Primary button (Next, Generate) */
+.cd-btn-primary {
+    background: linear-gradient(135deg, var(--amber-flame) 0%, var(--tiger-orange) 100%);
+    color: var(--deep-space);
+    font-weight: 700;
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(251, 133, 0, 0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.cd-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(251, 133, 0, 0.4);
+}
+.cd-btn-primary:active {
+    transform: translateY(0);
+}
+.cd-btn-primary:disabled {
+    opacity: 0.7;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Back link */
+.cd-back {
+    color: var(--blue-green);
+    font-weight: 600;
+    transition: color 0.15s;
+}
+.cd-back:hover {
+    color: var(--deep-space);
+}
+
+/* CN display bar */
+.cd-cn-bar {
+    border-bottom: 2px solid var(--sky-blue);
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.cd-cn-label {
+    color: var(--blue-green);
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+}
+.cd-cn-value {
+    color: var(--deep-space);
+}
+
+/* Format toggle */
+.cd-format-option {
+    border: 2px solid #e2e8f0;
+    border-radius: 0.75rem;
+    color: #64748b;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.cd-format-option.active {
+    border-color: var(--blue-green);
+    background: rgba(142, 202, 230, 0.15);
+    color: var(--deep-space);
+}
+
+/* Counter */
+.cd-counter {
+    color: var(--blue-green);
+    font-weight: 500;
+}
+
+/* Footer */
+.cd-footer {
+    background: var(--deep-space);
+}
+.cd-footer-warning {
+    color: var(--amber-flame);
+}
+.cd-footer-sub {
+    color: var(--sky-blue);
+    opacity: 0.6;
+}
 
 /* Uppercase country input */
-#country {
-    text-transform: uppercase;
-}
+#country { text-transform: uppercase; }
 
 /* Smooth transitions between steps */
-#step1, #step2 {
-    transition: opacity 0.15s ease;
-}
+#step1, #step2 { transition: opacity 0.15s ease; }

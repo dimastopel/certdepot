@@ -6,78 +6,86 @@
     <title>Certificate Depot - Free Self-Signed SSL Certificates</title>
     <meta name="description" content="Generate free self-signed SSL/TLS certificates instantly. No signup required.">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
+<body class="bg-slate-50 min-h-screen flex flex-col">
 
     <!-- Header -->
-    <header class="bg-white border-b border-gray-200">
-        <div class="max-w-3xl mx-auto px-4 py-6 text-center">
-            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Certificate Depot</h1>
-            <p class="mt-1 text-gray-500 text-sm">Free self-signed SSL/TLS certificates in seconds</p>
+    <header class="cd-header py-10">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Certificate Depot</h1>
+            <p class="mt-3 text-base sm:text-lg font-medium">Free self-signed SSL/TLS certificates in seconds</p>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 flex items-start justify-center px-4 py-10">
-        <div class="w-full max-w-lg">
+    <main class="flex-1 flex items-start justify-center px-4 sm:px-6 py-10">
+        <div class="w-full max-w-2xl">
 
             <!-- Step 1: Common Name -->
-            <div id="step1" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                <div class="text-center mb-6">
-                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-50 mb-3">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div id="step1" class="cd-card p-8 sm:p-10">
+                <div class="text-center mb-8">
+                    <div class="cd-icon inline-flex items-center justify-center w-16 h-16 rounded-full mb-5">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                         </svg>
                     </div>
-                    <h2 class="text-xl font-semibold text-gray-900">Generate a Certificate</h2>
-                    <p class="text-sm text-gray-500 mt-1">Enter the domain name or IP address</p>
+                    <h2 class="cd-heading text-2xl font-bold">Generate a Certificate</h2>
+                    <p class="text-gray-500 mt-2">Enter the domain name or IP address</p>
                 </div>
 
-                <div class="space-y-4">
+                <div class="space-y-5">
                     <div>
-                        <label for="commonName" class="block text-sm font-medium text-gray-700 mb-1">Common Name</label>
+                        <label for="commonName" class="cd-label block text-sm font-semibold mb-1.5">Common Name</label>
                         <input type="text" id="commonName" placeholder="e.g. example.com or 192.168.1.1"
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-lg"
+                               class="cd-input w-full px-4 py-3.5 text-lg"
                                maxlength="253" autocomplete="off" autofocus>
-                        <p id="cnError" class="text-red-500 text-xs mt-1 hidden">Please enter a common name</p>
+                        <p id="cnError" class="text-red-500 text-xs mt-1.5 hidden">Please enter a common name</p>
                     </div>
 
                     <button id="nextBtn" type="button"
-                            class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-base">
+                            class="cd-btn-primary w-full py-3.5 px-4 text-lg">
                         Next
                     </button>
                 </div>
 
-                <div id="counterDisplay" class="text-center mt-6 text-sm text-gray-400">
+                <div id="counterDisplay" class="cd-counter text-center mt-8 text-sm">
                     <!-- Filled by JS -->
                 </div>
             </div>
 
             <!-- Step 2: Options & Generate -->
             <div id="step2" class="hidden">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <div class="cd-card p-8 sm:p-10">
                     <!-- Common Name display (read-only) -->
-                    <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+                    <div class="cd-cn-bar flex items-center justify-between">
                         <div>
-                            <span class="text-xs font-medium text-gray-400 uppercase tracking-wide">Common Name</span>
-                            <p id="cnDisplay" class="text-lg font-semibold text-gray-900 mt-0.5"></p>
+                            <span class="cd-cn-label">Common Name</span>
+                            <p id="cnDisplay" class="cd-cn-value text-xl font-bold mt-1"></p>
                         </div>
-                        <button id="backBtn" type="button" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                        <button id="backBtn" type="button" class="cd-back text-sm">
                             &larr; Back
                         </button>
                     </div>
 
-                    <h2 class="text-lg font-semibold text-gray-900 mb-1">Optional Details</h2>
-                    <p class="text-sm text-gray-500 mb-5">All fields below are optional. Defaults will be used if left empty.</p>
+                    <!-- Subject Alternative Names -->
+                    <div class="mb-6">
+                        <label for="sans" class="cd-label block text-sm font-semibold mb-1">Subject Alternative Names</label>
+                        <p class="text-gray-500 text-xs mb-1.5">Additional domain names or IPs, one per line. Common Name is included automatically.</p>
+                        <textarea id="sans" rows="3" placeholder="www.example.com&#10;*.example.com&#10;192.168.1.1"
+                                  class="cd-input w-full px-3 py-2.5 text-sm resize-y"></textarea>
+                    </div>
 
-                    <div class="space-y-4">
+                    <h2 class="cd-heading text-lg font-bold mb-1">Optional Details</h2>
+                    <p class="text-gray-500 text-sm mb-6">All fields below are optional. Defaults will be used if left empty.</p>
+
+                    <div class="space-y-5">
                         <!-- Key Type & Validity Row -->
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label for="keyType" class="block text-sm font-medium text-gray-700 mb-1">Key Type</label>
-                                <select id="keyType"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm bg-white">
+                                <label for="keyType" class="cd-label block text-sm font-semibold mb-1.5">Key Type</label>
+                                <select id="keyType" class="cd-input w-full px-3 py-2.5 text-sm bg-white">
                                     <option value="rsa2048" selected>RSA 2048</option>
                                     <option value="rsa4096">RSA 4096</option>
                                     <option value="ecdsaP256">ECDSA P-256</option>
@@ -85,67 +93,67 @@
                                 </select>
                             </div>
                             <div>
-                                <label for="validityDays" class="block text-sm font-medium text-gray-700 mb-1">Validity (days)</label>
+                                <label for="validityDays" class="cd-label block text-sm font-semibold mb-1.5">Validity (days)</label>
                                 <input type="number" id="validityDays" value="365" min="1" max="3650"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                                       class="cd-input w-full px-3 py-2.5 text-sm">
                             </div>
                         </div>
 
                         <!-- Country & State Row -->
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                                <label for="country" class="cd-label block text-sm font-semibold mb-1.5">Country</label>
                                 <input type="text" id="country" placeholder="US" maxlength="2"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm uppercase">
+                                       class="cd-input w-full px-3 py-2.5 text-sm">
                             </div>
                             <div>
-                                <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State / Province</label>
+                                <label for="state" class="cd-label block text-sm font-semibold mb-1.5">State / Province</label>
                                 <input type="text" id="state" placeholder="California" maxlength="64"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                                       class="cd-input w-full px-3 py-2.5 text-sm">
                             </div>
                         </div>
 
                         <!-- City & Organization Row -->
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                <label for="city" class="cd-label block text-sm font-semibold mb-1.5">City</label>
                                 <input type="text" id="city" placeholder="San Francisco" maxlength="64"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                                       class="cd-input w-full px-3 py-2.5 text-sm">
                             </div>
                             <div>
-                                <label for="organization" class="block text-sm font-medium text-gray-700 mb-1">Organization</label>
+                                <label for="organization" class="cd-label block text-sm font-semibold mb-1.5">Organization</label>
                                 <input type="text" id="organization" placeholder="My Company" maxlength="64"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                                       class="cd-input w-full px-3 py-2.5 text-sm">
                             </div>
                         </div>
 
                         <!-- Org Unit & Email Row -->
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label for="orgUnit" class="block text-sm font-medium text-gray-700 mb-1">Org Unit</label>
+                                <label for="orgUnit" class="cd-label block text-sm font-semibold mb-1.5">Org Unit</label>
                                 <input type="text" id="orgUnit" placeholder="Engineering" maxlength="64"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                                       class="cd-input w-full px-3 py-2.5 text-sm">
                             </div>
                             <div>
-                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <label for="email" class="cd-label block text-sm font-semibold mb-1.5">Email</label>
                                 <input type="email" id="email" placeholder="admin@example.com" maxlength="254"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                                       class="cd-input w-full px-3 py-2.5 text-sm">
                             </div>
                         </div>
 
                         <!-- Output Format -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Output Format</label>
+                            <label class="cd-label block text-sm font-semibold mb-2">Output Format</label>
                             <div class="flex gap-3">
                                 <label class="flex-1 cursor-pointer">
                                     <input type="radio" name="outputFormat" value="zip" checked class="sr-only peer">
-                                    <div class="text-center py-2.5 px-4 border-2 border-gray-300 rounded-lg peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 transition-colors text-sm font-medium text-gray-600">
+                                    <div class="cd-format-option peer-checked:active text-center py-3 px-4 text-sm">
                                         ZIP <span class="text-xs font-normal">(PEM files)</span>
                                     </div>
                                 </label>
                                 <label class="flex-1 cursor-pointer">
                                     <input type="radio" name="outputFormat" value="pfx" class="sr-only peer">
-                                    <div class="text-center py-2.5 px-4 border-2 border-gray-300 rounded-lg peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 transition-colors text-sm font-medium text-gray-600">
+                                    <div class="cd-format-option peer-checked:active text-center py-3 px-4 text-sm">
                                         PFX <span class="text-xs font-normal">(PKCS#12)</span>
                                     </div>
                                 </label>
@@ -154,15 +162,15 @@
 
                         <!-- PFX Password (hidden by default) -->
                         <div id="pfxPasswordGroup" class="hidden">
-                            <label for="pfxPassword" class="block text-sm font-medium text-gray-700 mb-1">PFX Password</label>
+                            <label for="pfxPassword" class="cd-label block text-sm font-semibold mb-1.5">PFX Password</label>
                             <input type="password" id="pfxPassword" placeholder="Minimum 4 characters" minlength="4" maxlength="128"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
-                            <p id="pfxError" class="text-red-500 text-xs mt-1 hidden">Password must be at least 4 characters</p>
+                                   class="cd-input w-full px-3 py-2.5 text-sm">
+                            <p id="pfxError" class="text-red-500 text-xs mt-1.5 hidden">Password must be at least 4 characters</p>
                         </div>
 
                         <!-- Generate Button -->
                         <button id="generateBtn" type="button"
-                                class="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors text-base mt-2">
+                                class="cd-btn-primary w-full py-4 px-4 text-lg mt-2">
                             Generate Certificate
                         </button>
 
@@ -176,9 +184,10 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-gray-200 bg-white">
-        <div class="max-w-3xl mx-auto px-4 py-4 text-center text-xs text-gray-400">
-            Certificate Depot &mdash; Free self-signed certificates for development and testing
+    <footer class="cd-footer py-6">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="cd-footer-warning text-sm font-semibold mb-2">Self-signed certificates are intended for development and testing only. Do not use them in production.</p>
+            <p class="cd-footer-sub text-xs">Certificate Depot &mdash; Free self-signed certificates</p>
         </div>
     </footer>
 

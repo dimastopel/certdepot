@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -139,6 +140,40 @@ func TestGenerateHandler_ControlCharsStripped(t *testing.T) {
 
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200 (control chars stripped), got %d: %s", w.Code, w.Body.String())
+	}
+}
+
+func TestGenerateHandler_WithSANs(t *testing.T) {
+	h := setupHandlers(t)
+
+	body := `{"commonName":"test.com","sans":["www.test.com","api.test.com","10.0.0.1"]}`
+	req := httptest.NewRequest("POST", "/api/generate", bytes.NewBufferString(body))
+	w := httptest.NewRecorder()
+
+	h.Generate(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
+	}
+}
+
+func TestGenerateHandler_TooManySANs(t *testing.T) {
+	h := setupHandlers(t)
+
+	// Build a request with 51 SANs
+	sans := make([]string, 51)
+	for i := range sans {
+		sans[i] = fmt.Sprintf("host%d.example.com", i)
+	}
+	sansJSON, _ := json.Marshal(sans)
+	body := fmt.Sprintf(`{"commonName":"test.com","sans":%s}`, sansJSON)
+	req := httptest.NewRequest("POST", "/api/generate", bytes.NewBufferString(body))
+	w := httptest.NewRecorder()
+
+	h.Generate(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for >50 SANs, got %d", w.Code)
 	}
 }
 

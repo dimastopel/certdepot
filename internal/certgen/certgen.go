@@ -47,6 +47,7 @@ type Request struct {
 	KeyType      KeyType
 	OutputFormat OutputFormat
 	PFXPassword  string
+	SANs         []string // additional DNS names or IPs (CN is always included)
 }
 
 type Result struct {
@@ -101,12 +102,29 @@ func Generate(req Request) (*Result, error) {
 		template.EmailAddresses = []string{req.Email}
 	}
 
-	// Add SAN: if CN looks like an IP, add to IPAddresses; otherwise DNSNames
+	// Build SANs: always include CN, then add any additional SANs
+	var dnsNames []string
+	var ipAddresses []net.IP
+
 	if ip := net.ParseIP(req.CommonName); ip != nil {
-		template.IPAddresses = []net.IP{ip}
+		ipAddresses = append(ipAddresses, ip)
 	} else {
-		template.DNSNames = []string{req.CommonName}
+		dnsNames = append(dnsNames, req.CommonName)
 	}
+
+	for _, san := range req.SANs {
+		if san == "" || san == req.CommonName {
+			continue
+		}
+		if ip := net.ParseIP(san); ip != nil {
+			ipAddresses = append(ipAddresses, ip)
+		} else {
+			dnsNames = append(dnsNames, san)
+		}
+	}
+
+	template.DNSNames = dnsNames
+	template.IPAddresses = ipAddresses
 
 	certDER, err := x509.CreateCertificate(rand.Reader, template, template, pubKey, privKey)
 	if err != nil {
