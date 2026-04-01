@@ -135,9 +135,17 @@
 }
 
 /* FAQ */
+.cd-faq-item {
+    width: 100%;
+    box-sizing: border-box;
+}
 .cd-faq-item summary {
     list-style: none;
     color: var(--deep-space);
+}
+.cd-faq-item > div {
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 .cd-faq-item summary::-webkit-details-marker { display: none; }
 .cd-faq-item summary::before {
