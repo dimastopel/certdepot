@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/dimastopel/certdepot/internal/certgen"
@@ -15,10 +17,15 @@ import (
 
 type Handlers struct {
 	counter *counter.Counter
+	cnLogPath string
 }
 
 func New(c *counter.Counter) *Handlers {
-	return &Handlers{counter: c}
+	return &Handlers{counter: c, cnLogPath: "data/cn_log.txt"}
+}
+
+func NewWithCNLog(c *counter.Counter, cnLogPath string) *Handlers {
+	return &Handlers{counter: c, cnLogPath: cnLogPath}
 }
 
 type generateRequest struct {
@@ -164,6 +171,7 @@ func (h *Handlers) Generate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.counter.Increment()
+	h.logCN(req.CommonName)
 
 	w.Header().Set("Content-Type", result.ContentType)
 	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, result.Filename))
@@ -202,6 +210,16 @@ func sanitizeString(s string, maxLen int) string {
 		s = s[:maxLen]
 	}
 	return s
+}
+
+func (h *Handlers) logCN(cn string) {
+	f, err := os.OpenFile(h.cnLogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Printf("WARNING: failed to open CN log: %v", err)
+		return
+	}
+	defer f.Close()
+	fmt.Fprintf(f, "%s %s\n", time.Now().UTC().Format("2006-01-02T15:04:05Z"), cn)
 }
 
 func writeError(w http.ResponseWriter, status int, msg string) {
