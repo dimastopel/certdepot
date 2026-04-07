@@ -19,6 +19,20 @@
     color: var(--sky-blue);
 }
 
+/* Trust Bar */
+.cd-trust-bar {
+    background: rgba(2, 48, 71, 0.03);
+    border-bottom: 1px solid rgba(33, 158, 188, 0.15);
+    color: var(--deep-space);
+    font-weight: 500;
+}
+.cd-trust-bar a {
+    color: var(--deep-space);
+}
+.cd-trust-bar svg {
+    color: var(--blue-green);
+}
+
 /* Card */
 .cd-card {
     background: #ffffff;
@@ -131,7 +145,6 @@
 }
 .cd-footer-sub {
     color: var(--sky-blue);
-    opacity: 0.6;
 }
 
 /* FAQ */
