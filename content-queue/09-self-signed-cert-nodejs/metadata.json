@@ -1,0 +1,6 @@
+{
+  "type": "guide",
+  "slug": "self-signed-cert-nodejs",
+  "title": "Self-Signed SSL Certificate for Node.js HTTPS Server",
+  "priority": "0.7"
+}

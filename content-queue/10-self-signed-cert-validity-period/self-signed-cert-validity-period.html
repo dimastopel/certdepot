@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9JTD7HTGCG"></script>
+    <script src="/static/js/gtag.js"></script>
+
+    <title>How Long Should a Self-Signed Certificate Be Valid? | Certificate Depot</title>
+    <meta name="description" content="Certificate validity period tradeoffs: browser limits, rotation hygiene, and practical defaults. Why 398 days is the upper bound for CA certs but not self-signed.">
+    <link rel="canonical" href="https://cert-depot.com/guides/self-signed-cert-validity-period">
+
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://cert-depot.com/guides/self-signed-cert-validity-period">
+    <meta property="og:title" content="How Long Should a Self-Signed Certificate Be Valid?">
+    <meta property="og:description" content="Certificate validity period tradeoffs: browser limits, rotation hygiene, and practical defaults. Why 398 days is the upper bound for CA certs but not self-signed.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/guide.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="cd-header py-8">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <a href="/" class="inline-block">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Certificate Depot</h1>
+            </a>
+            <p class="mt-2 text-sm sm:text-base font-medium">Guides</p>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <article class="guide-body">
+            <div class="guide-breadcrumb">
+                <a href="/">Home</a> &rsaquo; Guides &rsaquo; Validity period
+            </div>
+
+            <h1>How Long Should a Self-Signed Certificate Be Valid?</h1>
+            <p class="subtitle">Why 398 days is the public-CA ceiling, why self-signed certs aren't bound by it, and what validity period you should actually pick.</p>
+
+            <p>When generating a self-signed cert, you set how long it's valid. Different tools default to different values: OpenSSL is 30 days, Let's Encrypt is 90 days, enterprise CAs used to issue for 10+ years. Here's how to think about it.</p>
+
+            <h2>The 398-day browser limit</h2>
+
+            <p>Since September 2020, <a href="https://support.apple.com/en-us/102028" target="_blank" rel="noopener">Apple</a>, <a href="https://chromestatus.com/feature/4843772447199232" target="_blank" rel="noopener">Chrome</a>, and Mozilla reject <strong>publicly-trusted</strong> SSL certificates valid for more than 398 days. This was a CA/Browser Forum policy change aimed at forcing faster rotation after incidents where CAs kept issuing problematic certs for years.</p>
+
+            <p>This limit applies to certificates chained to a browser-trusted root — in other words, Let's Encrypt, DigiCert, Sectigo, etc. It does <strong>not</strong> apply to certificates in a private trust chain, like self-signed certs or your own internal CA.</p>
+
+            <h2>Self-signed certs can be any duration</h2>
+
+            <p>Technically, you could issue a self-signed cert valid for 100 years. The browser-limit logic only kicks in for publicly-trusted chains. For dev and internal use, the duration you pick is entirely a tradeoff:</p>
+
+            <ul>
+                <li><strong>Too short</strong> — you're constantly regenerating and reinstalling.</li>
+                <li><strong>Too long</strong> — if the private key leaks, the blast radius is huge.</li>
+            </ul>
+
+            <h2>Practical defaults</h2>
+
+            <h3>Local development on your laptop: 1–5 years</h3>
+            <p>Set it and forget it. The private key sits on your development machine and rarely leaves it.</p>
+
+            <h3>Internal tools / internal CA: 90 days to 1 year</h3>
+            <p>Short enough to build rotation hygiene, long enough that you're not rotating weekly.</p>
+
+            <h3>CI/CD or ephemeral test environments: 30–90 days</h3>
+            <p>Matches the rotation cadence of the infrastructure it lives on.</p>
+
+            <h3>Certificate authority root (your own internal CA): 10–20 years</h3>
+            <p>Rotating a root is painful. Pick a long duration and protect the private key in a vault.</p>
+
+            <h2>What browsers will accept from self-signed sources</h2>
+
+            <p>A self-signed cert valid for 10 years is technically fine. But if a user decides to "trust" a 10-year cert in their OS, they're granting that cert authority for 10 years. Consider what happens if the server holding the private key is compromised in year 3.</p>
+
+            <p>For maximum safety, 1 year is a good ceiling. Renew annually with a script.</p>
+
+            <h2>Reading the validity period of an existing cert</h2>
+
+            <p>Use our <a href="/tools/pem-decoder">PEM decoder</a>, or:</p>
+
+            <pre><code>openssl x509 -in cert.pem -noout -dates</code></pre>
+
+            <p>Output:</p>
+
+            <pre><code>notBefore=Apr  1 12:00:00 2026 GMT
+notAfter=Apr  1 12:00:00 2027 GMT</code></pre>
+
+            <div class="guide-cta">
+                <strong>Need a self-signed certificate?</strong> Use our <a href="/">free generator</a> — browser-compatible SANs, RSA or ECDSA, ZIP or PFX. No signup, no ads, keys never stored.
+            </div>
+
+            <h2>Further Reading</h2>
+            <ul>
+                <li><a href="/guides/rsa-vs-ecdsa-self-signed">Picking the key algorithm</a></li>
+                <li><a href="/guides/self-signed-cert-nginx">Configure on Nginx</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer class="cd-footer py-6">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="cd-footer-warning text-sm font-semibold mb-2">Self-signed certificates are intended for development and testing only. Do not use them in production.</p>
+            <p class="cd-footer-sub text-sm"><strong>Certificate Depot</strong> &mdash; Free and open source, forever. No ads, no tracking cookies, no stored keys.</p>
+        </div>
+    </footer>
+</body>
+</html>

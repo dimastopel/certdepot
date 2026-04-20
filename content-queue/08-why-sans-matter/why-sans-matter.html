@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9JTD7HTGCG"></script>
+    <script src="/static/js/gtag.js"></script>
+
+    <title>Why Subject Alternative Names (SANs) Matter for Modern Browsers | Certificate Depot</title>
+    <meta name="description" content="Since Chrome 58 (2017), browsers ignore the Common Name field and only validate the Subject Alternative Name. Here's why, and what it means for your self-signed certs.">
+    <link rel="canonical" href="https://cert-depot.com/guides/why-sans-matter">
+
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://cert-depot.com/guides/why-sans-matter">
+    <meta property="og:title" content="Why Subject Alternative Names (SANs) Matter for Modern Browsers">
+    <meta property="og:description" content="Since Chrome 58 (2017), browsers ignore the Common Name field and only validate the Subject Alternative Name. Here's why, and what it means for your self-signed certs.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/guide.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="cd-header py-8">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <a href="/" class="inline-block">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Certificate Depot</h1>
+            </a>
+            <p class="mt-2 text-sm sm:text-base font-medium">Guides</p>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <article class="guide-body">
+            <div class="guide-breadcrumb">
+                <a href="/">Home</a> &rsaquo; Guides &rsaquo; Why SANs matter
+            </div>
+
+            <h1>Why Subject Alternative Names (SANs) Matter for Modern Browsers</h1>
+            <p class="subtitle">The single most common reason self-signed certs stop working in browsers — and the fix.</p>
+
+            <p>For two decades, SSL/TLS certificates identified themselves via the <strong>Common Name</strong> (CN) field in the Subject Distinguished Name. Today, browsers ignore it completely. If your certificate doesn't have a Subject Alternative Name (SAN) matching the hostname, every modern browser will reject it — even if the CN is exactly right.</p>
+
+            <h2>The short version</h2>
+
+            <p>When you visit <code>https://example.com</code>, the browser checks the server's certificate for a SAN entry containing <code>example.com</code>. If no SAN matches, the connection is rejected with an error like <code>NET::ERR_CERT_COMMON_NAME_INVALID</code>. The Common Name is not consulted.</p>
+
+            <h2>When did this change?</h2>
+
+            <ul>
+                <li><strong>2000:</strong> RFC 2818 says "if a subjectAltName extension of type dNSName is present, that MUST be used as the identity. Otherwise, the (most specific) Common Name field in the Subject field of the certificate MUST be used."</li>
+                <li><strong>2012:</strong> CA/Browser Forum Baseline Requirements mandate SANs for CA-issued certs.</li>
+                <li><strong>2017 (Chrome 58):</strong> Chrome <a href="https://chromestatus.com/feature/4981025180483584" target="_blank" rel="noopener">removes the CN fallback</a>. Firefox follows shortly after. Safari had never accepted CN-only certs.</li>
+                <li><strong>Today:</strong> Every major browser ignores CN.</li>
+            </ul>
+
+            <h2>What a SAN looks like</h2>
+
+            <p>The SAN is an X.509 extension. In a certificate, it might look like:</p>
+
+            <pre><code>X509v3 Subject Alternative Name:
+    DNS:example.com
+    DNS:www.example.com
+    DNS:*.dev.example.com
+    IP:127.0.0.1
+    IP:192.168.1.1</code></pre>
+
+            <p>Paste any certificate into our <a href="/tools/pem-decoder">PEM decoder</a> to see its SAN entries.</p>
+
+            <h2>Generating a cert with SANs</h2>
+
+            <p>With <a href="/">cert-depot.com</a>: just list each SAN on its own line in the SANs field. The CN is automatically included as a SAN; you only need to list additional names (other domains, wildcards, IPs).</p>
+
+            <p>With OpenSSL:</p>
+
+            <pre><code>openssl req -x509 -newkey rsa:2048 -nodes \
+  -keyout key.pem -out cert.pem -days 365 \
+  -subj "/CN=example.com" \
+  -addext "subjectAltName=DNS:example.com,DNS:*.example.com,IP:127.0.0.1"</code></pre>
+
+            <p>The <code>-addext</code> flag was added in OpenSSL 1.1.1 (2018). On older versions, you need a config file.</p>
+
+            <h2>Types of SAN you can include</h2>
+
+            <ul>
+                <li><strong>dNSName</strong> — a domain like <code>example.com</code> or wildcard <code>*.example.com</code>. Wildcards match exactly one label.</li>
+                <li><strong>iPAddress</strong> — a literal IPv4 or IPv6 address. Useful for direct-to-IP testing.</li>
+                <li><strong>uniformResourceIdentifier</strong> — a URI. Used for OCSP responder URLs, not hostname matching.</li>
+                <li><strong>rfc822Name</strong> — an email address. Used for S/MIME, not TLS.</li>
+            </ul>
+
+            <h2>Wildcard rules</h2>
+
+            <p>A wildcard like <code>*.example.com</code> matches <code>foo.example.com</code> but <strong>not</strong>:</p>
+            <ul>
+                <li><code>example.com</code> itself (the apex)</li>
+                <li><code>foo.bar.example.com</code> (deeper subdomains)</li>
+            </ul>
+
+            <p>Practical implication: include both <code>example.com</code> and <code>*.example.com</code> as separate SAN entries to cover both cases.</p>
+
+            <h2>Can the CN still be set?</h2>
+
+            <p>Yes — and it's often set to the primary domain for readability in cert listings. But browsers ignore it. Set it to whatever the primary name is, and make sure that same name is in the SAN list.</p>
+
+            <div class="guide-cta">
+                <strong>Need a self-signed certificate?</strong> Use our <a href="/">free generator</a> — browser-compatible SANs, RSA or ECDSA, ZIP or PFX. No signup, no ads, keys never stored.
+            </div>
+
+            <h2>Further Reading</h2>
+            <ul>
+                <li><a href="/guides/self-signed-cert-nginx">Configure your cert on Nginx</a></li>
+                <li><a href="/guides/trust-self-signed-cert-chrome">Trust your cert in Chrome</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer class="cd-footer py-6">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="cd-footer-warning text-sm font-semibold mb-2">Self-signed certificates are intended for development and testing only. Do not use them in production.</p>
+            <p class="cd-footer-sub text-sm"><strong>Certificate Depot</strong> &mdash; Free and open source, forever. No ads, no tracking cookies, no stored keys.</p>
+        </div>
+    </footer>
+</body>
+</html>

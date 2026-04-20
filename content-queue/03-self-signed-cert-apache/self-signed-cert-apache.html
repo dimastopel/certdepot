@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9JTD7HTGCG"></script>
+    <script src="/static/js/gtag.js"></script>
+
+    <title>Self-Signed SSL Certificate for Apache HTTP Server | Certificate Depot</title>
+    <meta name="description" content="Step-by-step guide to configuring a self-signed SSL/TLS certificate on Apache httpd. Generate the cert, enable mod_ssl, configure the VirtualHost, and reload.">
+    <link rel="canonical" href="https://cert-depot.com/guides/self-signed-cert-apache">
+
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://cert-depot.com/guides/self-signed-cert-apache">
+    <meta property="og:title" content="Self-Signed SSL Certificate for Apache HTTP Server">
+    <meta property="og:description" content="Step-by-step guide to configuring a self-signed SSL/TLS certificate on Apache httpd. Generate the cert, enable mod_ssl, configure the VirtualHost, and reload.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/guide.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="cd-header py-8">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <a href="/" class="inline-block">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Certificate Depot</h1>
+            </a>
+            <p class="mt-2 text-sm sm:text-base font-medium">Guides</p>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <article class="guide-body">
+            <div class="guide-breadcrumb">
+                <a href="/">Home</a> &rsaquo; Guides &rsaquo; Apache
+            </div>
+
+            <h1>Self-Signed SSL Certificate for Apache HTTP Server</h1>
+            <p class="subtitle">Configure Apache to serve HTTPS using a self-signed certificate.</p>
+
+            <p>Apache HTTP Server uses <code>mod_ssl</code> for HTTPS. Once the module is enabled, serving a self-signed certificate is just three config directives and a reload.</p>
+
+            <h2>Step 1: Generate the Certificate</h2>
+            <p>Use <a href="/">cert-depot.com</a> for a browser-friendly cert with Subject Alternative Names, or generate one with OpenSSL:</p>
+            <pre><code>openssl req -x509 -newkey rsa:2048 -nodes \
+  -keyout server.key -out server.crt -days 365 \
+  -subj "/CN=example.local" \
+  -addext "subjectAltName=DNS:example.local,IP:127.0.0.1"</code></pre>
+
+            <h2>Step 2: Enable mod_ssl</h2>
+            <p>On Debian/Ubuntu:</p>
+            <pre><code>sudo a2enmod ssl
+sudo a2ensite default-ssl</code></pre>
+            <p>On RHEL/CentOS, install it if it's not already present:</p>
+            <pre><code>sudo dnf install mod_ssl</code></pre>
+
+            <h2>Step 3: Install the Certificate Files</h2>
+            <pre><code>sudo mkdir -p /etc/apache2/ssl  # or /etc/httpd/conf.d/ssl on RHEL
+sudo cp server.crt /etc/apache2/ssl/
+sudo cp server.key /etc/apache2/ssl/
+sudo chmod 600 /etc/apache2/ssl/server.key</code></pre>
+
+            <h2>Step 4: Configure the VirtualHost</h2>
+            <p>Edit <code>/etc/apache2/sites-available/default-ssl.conf</code> (Debian/Ubuntu) or <code>/etc/httpd/conf.d/ssl.conf</code> (RHEL):</p>
+            <pre><code>&lt;VirtualHost *:443&gt;
+    ServerName example.local
+    DocumentRoot /var/www/html
+
+    SSLEngine on
+    SSLCertificateFile    /etc/apache2/ssl/server.crt
+    SSLCertificateKeyFile /etc/apache2/ssl/server.key
+
+    SSLProtocol -all +TLSv1.2 +TLSv1.3
+    SSLCipherSuite HIGH:!aNULL:!MD5
+&lt;/VirtualHost&gt;</code></pre>
+
+            <blockquote><strong>Tip:</strong> If you need HTTP to redirect to HTTPS, add a <code>&lt;VirtualHost *:80&gt;</code> block with <code>Redirect permanent / https://example.local/</code>.</blockquote>
+
+            <h2>Step 5: Test and Reload</h2>
+            <pre><code>sudo apachectl configtest
+sudo systemctl reload apache2  # or httpd on RHEL</code></pre>
+            <p>Verify with <code>curl -kvI https://example.local/</code> — you should see the TLS handshake succeed and the certificate details.</p>
+
+            <h2>Troubleshooting</h2>
+            <h3>"SSL Library Error: Unable to load private key"</h3>
+            <p>Wrong file permissions or the key is password-protected. Use <code>-nodes</code> when generating with OpenSSL to produce an unencrypted key (safe for development only).</p>
+
+            <h3>"AH00526: Syntax error"</h3>
+            <p>Run <code>apachectl configtest</code> — it will point to the exact line. Usually a missing closing tag or typo in a file path.</p>
+
+            <h3>Chrome shows ERR_CERT_COMMON_NAME_INVALID</h3>
+            <p>Your certificate is missing a Subject Alternative Name. Regenerate it with the <code>-addext "subjectAltName=..."</code> flag, or use our <a href="/">generator</a> which includes SANs automatically.</p>
+
+            <div class="guide-cta">
+                <strong>Need a self-signed certificate?</strong> Use our <a href="/">free generator</a> — browser-compatible SANs, RSA or ECDSA, ZIP or PFX. No signup, no ads, keys never stored.
+            </div>
+
+            <h2>Further Reading</h2>
+            <ul>
+                <li><a href="/guides/self-signed-cert-nginx">Self-signed certificate for Nginx</a></li>
+                <li><a href="/guides/trust-self-signed-cert-chrome">Trust a self-signed certificate in Chrome</a></li>
+                <li><a href="/guides/why-sans-matter">Why Subject Alternative Names matter</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer class="cd-footer py-6">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="cd-footer-warning text-sm font-semibold mb-2">Self-signed certificates are intended for development and testing only. Do not use them in production.</p>
+            <p class="cd-footer-sub text-sm"><strong>Certificate Depot</strong> &mdash; Free and open source, forever. No ads, no tracking cookies, no stored keys.</p>
+        </div>
+    </footer>
+</body>
+</html>

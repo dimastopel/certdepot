@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9JTD7HTGCG"></script>
+    <script src="/static/js/gtag.js"></script>
+
+    <title>How to Trust a Self-Signed Certificate in Chrome | Certificate Depot</title>
+    <meta name="description" content="Make Chrome trust your self-signed SSL certificate without the "Your connection is not private" warning. Works on Windows, macOS, and Linux.">
+    <link rel="canonical" href="https://cert-depot.com/guides/trust-self-signed-cert-chrome">
+
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://cert-depot.com/guides/trust-self-signed-cert-chrome">
+    <meta property="og:title" content="How to Trust a Self-Signed Certificate in Chrome">
+    <meta property="og:description" content="Make Chrome trust your self-signed SSL certificate without the "Your connection is not private" warning. Works on Windows, macOS, and Linux.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/guide.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="cd-header py-8">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <a href="/" class="inline-block">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Certificate Depot</h1>
+            </a>
+            <p class="mt-2 text-sm sm:text-base font-medium">Guides</p>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <article class="guide-body">
+            <div class="guide-breadcrumb">
+                <a href="/">Home</a> &rsaquo; Guides &rsaquo; Trust in Chrome
+            </div>
+
+            <h1>How to Trust a Self-Signed Certificate in Chrome</h1>
+            <p class="subtitle">Remove the browser warning for your development certificates — on any OS.</p>
+
+            <p>Chrome doesn't have its own certificate store — it uses the operating system's trust store. Once you add your self-signed certificate to the OS, Chrome (and most other browsers) will trust it automatically. Firefox is the exception, and we cover it in a <a href="/guides/trust-self-signed-cert-firefox">separate guide</a>.</p>
+
+            <h2>Prerequisites</h2>
+            <p>You need the public certificate file (<code>.crt</code> or <code>.pem</code>). You do <em>not</em> need the private key on the client machine — only on the server.</p>
+
+            <blockquote><strong>Important:</strong> Chrome (since version 58, released in 2017) requires the certificate to have a Subject Alternative Name matching the hostname. If your cert only has a Common Name, it won't be trusted even after you install it. <a href="/">Our generator</a> adds SANs automatically.</blockquote>
+
+            <h2>macOS</h2>
+            <ol>
+                <li>Double-click the <code>.crt</code> or <code>.pem</code> file. Keychain Access will open.</li>
+                <li>When prompted, choose the <strong>System</strong> keychain (not login) so all users trust it.</li>
+                <li>Find the certificate in Keychain Access, double-click it.</li>
+                <li>Expand <strong>Trust</strong>, set "When using this certificate" to <strong>Always Trust</strong>.</li>
+                <li>Close the window — you'll be asked for your password to save.</li>
+                <li>Quit and restart Chrome.</li>
+            </ol>
+
+            <h3>From the command line</h3>
+            <pre><code>sudo security add-trusted-cert -d -r trustRoot \
+  -k /Library/Keychains/System.keychain certificate.pem</code></pre>
+
+            <h2>Windows</h2>
+            <ol>
+                <li>Double-click the <code>.crt</code> file.</li>
+                <li>Click <strong>Install Certificate</strong>.</li>
+                <li>Choose <strong>Local Machine</strong> (requires admin), click Next.</li>
+                <li>Select <strong>Place all certificates in the following store</strong> and browse to <strong>Trusted Root Certification Authorities</strong>.</li>
+                <li>Click Next, then Finish. Confirm the security warning.</li>
+                <li>Restart Chrome.</li>
+            </ol>
+
+            <h3>PowerShell</h3>
+            <pre><code>Import-Certificate -FilePath "certificate.crt" `
+  -CertStoreLocation Cert:\LocalMachine\Root</code></pre>
+
+            <h2>Linux (Ubuntu/Debian)</h2>
+            <pre><code>sudo cp certificate.pem /usr/local/share/ca-certificates/my-cert.crt
+sudo update-ca-certificates</code></pre>
+
+            <p>On Fedora/RHEL:</p>
+            <pre><code>sudo cp certificate.pem /etc/pki/ca-trust/source/anchors/
+sudo update-ca-trust</code></pre>
+
+            <h3>Chrome-specific NSS database (Linux only)</h3>
+            <p>Chrome on Linux uses NSS, not the system trust store by default. To trust a cert just for Chrome:</p>
+            <pre><code>certutil -d sql:$HOME/.pki/nssdb -A -t "C,," \
+  -n "MyCert" -i certificate.pem</code></pre>
+            <p>Install <code>libnss3-tools</code> (Debian/Ubuntu) or <code>nss-tools</code> (Fedora) if <code>certutil</code> is not available.</p>
+
+            <h2>Verify It Worked</h2>
+            <p>Visit your HTTPS site in Chrome. The padlock should be green (or gray) with no warning. If you still see the warning:</p>
+            <ul>
+                <li>Fully quit Chrome and restart — it caches the trust store.</li>
+                <li>Check that the certificate has a matching SAN using our <a href="/tools/pem-decoder">PEM decoder</a>.</li>
+                <li>Confirm the hostname you're visiting exactly matches the SAN entry.</li>
+            </ul>
+
+            <div class="guide-cta">
+                <strong>Need a self-signed certificate?</strong> Use our <a href="/">free generator</a> — browser-compatible SANs, RSA or ECDSA, ZIP or PFX. No signup, no ads, keys never stored.
+            </div>
+
+            <h2>Further Reading</h2>
+            <ul>
+                <li><a href="/guides/trust-self-signed-cert-firefox">Trust in Firefox</a></li>
+                <li><a href="/guides/trust-self-signed-cert-macos">Detailed macOS guide</a></li>
+                <li><a href="/guides/trust-self-signed-cert-windows">Detailed Windows guide</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer class="cd-footer py-6">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="cd-footer-warning text-sm font-semibold mb-2">Self-signed certificates are intended for development and testing only. Do not use them in production.</p>
+            <p class="cd-footer-sub text-sm"><strong>Certificate Depot</strong> &mdash; Free and open source, forever. No ads, no tracking cookies, no stored keys.</p>
+        </div>
+    </footer>
+</body>
+</html>

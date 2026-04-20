@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9JTD7HTGCG"></script>
+    <script src="/static/js/gtag.js"></script>
+
+    <title>Self-Signed Certificates for localhost Development | Certificate Depot</title>
+    <meta name="description" content="Run HTTPS on localhost without browser warnings. How to generate, trust, and use a self-signed certificate for local development across macOS, Windows, and Linux.">
+    <link rel="canonical" href="https://cert-depot.com/guides/self-signed-cert-localhost-dev">
+
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://cert-depot.com/guides/self-signed-cert-localhost-dev">
+    <meta property="og:title" content="Self-Signed Certificates for localhost Development">
+    <meta property="og:description" content="Run HTTPS on localhost without browser warnings. How to generate, trust, and use a self-signed certificate for local development across macOS, Windows, and Linux.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/guide.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="cd-header py-8">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <a href="/" class="inline-block">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Certificate Depot</h1>
+            </a>
+            <p class="mt-2 text-sm sm:text-base font-medium">Guides</p>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <article class="guide-body">
+            <div class="guide-breadcrumb">
+                <a href="/">Home</a> &rsaquo; Guides &rsaquo; Localhost development
+            </div>
+
+            <h1>Self-Signed Certificates for localhost Development</h1>
+            <p class="subtitle">Stop clicking past browser warnings. Get a proper green-padlock HTTPS localhost in a few minutes.</p>
+
+            <p>Most modern web APIs require HTTPS: Service Workers, Web Crypto, geolocation, camera access, OAuth flows, HTTP/2. Developing locally against HTTP hits constant "feature unavailable" errors. A self-signed cert for <code>localhost</code> fixes this — but only if you trust it properly.</p>
+
+            <h2>Step 1: Generate the certificate</h2>
+
+            <p>With <a href="/">cert-depot.com</a>: enter <code>localhost</code> as the Common Name, add <code>127.0.0.1</code> and <code>::1</code> as IP SANs, generate.</p>
+
+            <p>With OpenSSL:</p>
+
+            <pre><code>openssl req -x509 -newkey rsa:2048 -nodes \
+  -keyout localhost.key -out localhost.crt \
+  -days 365 \
+  -subj "/CN=localhost" \
+  -addext "subjectAltName=DNS:localhost,IP:127.0.0.1,IP:::1"</code></pre>
+
+            <h2>Step 2: Trust it in your OS</h2>
+
+            <p>This is the step that makes the browser warning go away. Without it, you still get HTTPS (encrypted traffic), but the browser shows "Not Secure" and some APIs stay blocked.</p>
+
+            <ul>
+                <li><a href="/guides/trust-self-signed-cert-macos">macOS — Keychain Access</a></li>
+                <li><a href="/guides/trust-self-signed-cert-windows">Windows — Trusted Root store</a></li>
+                <li><a href="/guides/trust-self-signed-cert-chrome">Chrome-specific NSS store on Linux</a></li>
+            </ul>
+
+            <h2>Step 3: Serve it from your dev server</h2>
+
+            <h3>Vite</h3>
+            <pre><code>// vite.config.js
+import fs from "node:fs";
+
+export default {
+    server: {
+        https: {
+            key: fs.readFileSync("localhost.key"),
+            cert: fs.readFileSync("localhost.crt"),
+        },
+    },
+};</code></pre>
+
+            <h3>Next.js (via custom server)</h3>
+            <pre><code>// server.js
+const { createServer } = require("https");
+const fs = require("fs");
+const next = require("next");
+
+const app = next({ dev: true });
+const handle = app.getRequestHandler();
+
+app.prepare().then(() =&gt; {
+    createServer({
+        key: fs.readFileSync("localhost.key"),
+        cert: fs.readFileSync("localhost.crt"),
+    }, handle).listen(3000);
+});</code></pre>
+
+            <h3>webpack-dev-server</h3>
+            <pre><code>// webpack.config.js
+module.exports = {
+    devServer: {
+        server: {
+            type: "https",
+            options: {
+                key: "./localhost.key",
+                cert: "./localhost.crt",
+            },
+        },
+    },
+};</code></pre>
+
+            <h3>Python (http.server replacement)</h3>
+            <pre><code>from http.server import HTTPServer, SimpleHTTPRequestHandler
+import ssl
+
+ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+ctx.load_cert_chain("localhost.crt", "localhost.key")
+
+server = HTTPServer(("localhost", 4443), SimpleHTTPRequestHandler)
+server.socket = ctx.wrap_socket(server.socket, server_side=True)
+server.serve_forever()</code></pre>
+
+            <h2>Alternative: mkcert</h2>
+
+            <p><a href="https://github.com/FiloSottile/mkcert" target="_blank" rel="noopener">mkcert</a> automates the trust step by installing a local CA, then issuing certs from that CA. Install with:</p>
+
+            <pre><code>brew install mkcert  # macOS
+mkcert -install
+mkcert localhost 127.0.0.1 ::1</code></pre>
+
+            <p>It's convenient. The tradeoff is that mkcert installs its own root CA on your machine — meaning anyone who gets the mkcert CA private key could issue trusted certs for any domain. For a personal laptop this is fine; for shared machines or CI, prefer explicit per-cert trust.</p>
+
+            <h2>Why not use a real cert for localhost?</h2>
+
+            <p>You can't. Let's Encrypt (and every other publicly-trusted CA) refuses to issue certs for <code>localhost</code>, private IP ranges, or any domain they can't validate from the public internet. Self-signed is the only option.</p>
+
+            <div class="guide-cta">
+                <strong>Need a self-signed certificate?</strong> Use our <a href="/">free generator</a> — browser-compatible SANs, RSA or ECDSA, ZIP or PFX. No signup, no ads, keys never stored.
+            </div>
+
+            <h2>Further Reading</h2>
+            <ul>
+                <li><a href="/guides/trust-self-signed-cert-macos">Trust on macOS</a></li>
+                <li><a href="/guides/trust-self-signed-cert-windows">Trust on Windows</a></li>
+                <li><a href="/guides/self-signed-cert-nodejs">Node.js HTTPS</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer class="cd-footer py-6">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="cd-footer-warning text-sm font-semibold mb-2">Self-signed certificates are intended for development and testing only. Do not use them in production.</p>
+            <p class="cd-footer-sub text-sm"><strong>Certificate Depot</strong> &mdash; Free and open source, forever. No ads, no tracking cookies, no stored keys.</p>
+        </div>
+    </footer>
+</body>
+</html>

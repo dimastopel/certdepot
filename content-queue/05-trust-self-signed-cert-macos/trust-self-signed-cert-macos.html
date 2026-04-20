@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9JTD7HTGCG"></script>
+    <script src="/static/js/gtag.js"></script>
+
+    <title>How to Trust a Self-Signed Certificate on macOS | Certificate Depot</title>
+    <meta name="description" content="Install and trust a self-signed SSL certificate on macOS via Keychain Access or the command line. Works for Chrome, Safari, and most CLI tools.">
+    <link rel="canonical" href="https://cert-depot.com/guides/trust-self-signed-cert-macos">
+
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://cert-depot.com/guides/trust-self-signed-cert-macos">
+    <meta property="og:title" content="How to Trust a Self-Signed Certificate on macOS">
+    <meta property="og:description" content="Install and trust a self-signed SSL certificate on macOS via Keychain Access or the command line. Works for Chrome, Safari, and most CLI tools.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/guide.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="cd-header py-8">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <a href="/" class="inline-block">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Certificate Depot</h1>
+            </a>
+            <p class="mt-2 text-sm sm:text-base font-medium">Guides</p>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <article class="guide-body">
+            <div class="guide-breadcrumb">
+                <a href="/">Home</a> &rsaquo; Guides &rsaquo; Trust on macOS
+            </div>
+
+            <h1>How to Trust a Self-Signed Certificate on macOS</h1>
+            <p class="subtitle">Add your certificate to the macOS System keychain so Safari, Chrome, curl, and most other tools trust it.</p>
+
+            <p>macOS uses a unified keychain system that's shared across most applications — Safari, Chrome, curl, git, and many others. Adding your self-signed certificate once usually makes it trusted everywhere (Firefox is an exception; see our <a href="/guides/trust-self-signed-cert-firefox">Firefox guide</a>).</p>
+
+            <h2>GUI: Keychain Access</h2>
+            <ol>
+                <li>Open <strong>Keychain Access</strong> (Spotlight: <kbd>Cmd+Space</kbd>, type "Keychain").</li>
+                <li>From the menu: <strong>File &rsaquo; Import Items</strong>.</li>
+                <li>Select your <code>.pem</code> or <code>.crt</code> file.</li>
+                <li>When asked which keychain, choose <strong>System</strong> (requires admin password). Choose <strong>login</strong> to trust it only for your user.</li>
+                <li>Find the imported certificate, double-click it.</li>
+                <li>Expand the <strong>Trust</strong> section.</li>
+                <li>Change "When using this certificate" to <strong>Always Trust</strong>.</li>
+                <li>Close the dialog — you'll be prompted for your password to save.</li>
+            </ol>
+
+            <h2>Command Line</h2>
+            <p>For scripting or CI, use the <code>security</code> tool. This adds and fully trusts the cert in one step:</p>
+            <pre><code>sudo security add-trusted-cert -d -r trustRoot \
+  -k /Library/Keychains/System.keychain /path/to/certificate.pem</code></pre>
+            <p>Flags explained: <code>-d</code> = admin domain, <code>-r trustRoot</code> = trust as root CA, <code>-k</code> = keychain path.</p>
+
+            <p>To remove it later:</p>
+            <pre><code>sudo security delete-certificate -c "Your Certificate CN" \
+  /Library/Keychains/System.keychain</code></pre>
+
+            <h2>Verify It Worked</h2>
+
+            <p>Restart your browser (it caches the trust store at startup). Then use one of these:</p>
+
+            <pre><code># Inspect via curl
+curl -I https://your-domain.local/
+
+# Inspect the trust with security
+security verify-cert -c certificate.pem
+
+# View the cert that a server is serving
+echo | openssl s_client -connect your-domain.local:443 2&gt;/dev/null \
+  | openssl x509 -noout -subject -issuer</code></pre>
+
+            <h2>Common Issues</h2>
+
+            <h3>Still getting "certificate not trusted" in Chrome</h3>
+            <p>Fully quit Chrome (<kbd>Cmd+Q</kbd>) and reopen. Chrome only reads the trust store at startup.</p>
+
+            <h3>Certificate has no SAN</h3>
+            <p>Even when fully trusted in macOS, Chrome and Safari will reject certificates without a Subject Alternative Name matching the hostname. Use our <a href="/">generator</a> which includes SANs, or regenerate with <code>openssl</code> using the <code>-addext</code> flag.</p>
+
+            <h3>The cert imports but stays "Not Trusted"</h3>
+            <p>You imported it to the login keychain without changing the trust setting. Double-click the cert in Keychain Access and set "Always Trust".</p>
+
+            <div class="guide-cta">
+                <strong>Need a self-signed certificate?</strong> Use our <a href="/">free generator</a> — browser-compatible SANs, RSA or ECDSA, ZIP or PFX. No signup, no ads, keys never stored.
+            </div>
+
+            <h2>Further Reading</h2>
+            <ul>
+                <li><a href="/guides/trust-self-signed-cert-chrome">Trust in Chrome (all platforms)</a></li>
+                <li><a href="/guides/trust-self-signed-cert-firefox">Trust in Firefox</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer class="cd-footer py-6">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="cd-footer-warning text-sm font-semibold mb-2">Self-signed certificates are intended for development and testing only. Do not use them in production.</p>
+            <p class="cd-footer-sub text-sm"><strong>Certificate Depot</strong> &mdash; Free and open source, forever. No ads, no tracking cookies, no stored keys.</p>
+        </div>
+    </footer>
+</body>
+</html>

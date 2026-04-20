@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9JTD7HTGCG"></script>
+    <script src="/static/js/gtag.js"></script>
+
+    <title>Self-Signed SSL Certificates in Docker | Certificate Depot</title>
+    <meta name="description" content="Use self-signed SSL certificates with Docker — mount them into containers, build them into images, trust them inside the container, and use with nginx/Caddy.">
+    <link rel="canonical" href="https://cert-depot.com/guides/self-signed-cert-docker">
+
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://cert-depot.com/guides/self-signed-cert-docker">
+    <meta property="og:title" content="Self-Signed SSL Certificates in Docker">
+    <meta property="og:description" content="Use self-signed SSL certificates with Docker — mount them into containers, build them into images, trust them inside the container, and use with nginx/Caddy.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/guide.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="cd-header py-8">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <a href="/" class="inline-block">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Certificate Depot</h1>
+            </a>
+            <p class="mt-2 text-sm sm:text-base font-medium">Guides</p>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <article class="guide-body">
+            <div class="guide-breadcrumb">
+                <a href="/">Home</a> &rsaquo; Guides &rsaquo; Docker
+            </div>
+
+            <h1>Self-Signed SSL Certificates in Docker</h1>
+            <p class="subtitle">Mount certs, build them into images, or trust them inside a container — all the patterns for self-signed certs in Docker.</p>
+
+            <p>Running a self-signed cert in a container is the same as on bare metal — you just need the files where the process can read them. A few patterns cover 99% of use cases.</p>
+
+            <h2>Pattern 1: Mount certs as a volume (recommended)</h2>
+
+            <p>Keeps certs out of the image. Rotate them without rebuilding.</p>
+
+            <pre><code># docker-compose.yml
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "443:443"
+    volumes:
+      - ./certs:/etc/nginx/ssl:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro</code></pre>
+
+            <p>Then in <code>nginx.conf</code>:</p>
+
+            <pre><code>ssl_certificate     /etc/nginx/ssl/certificate.pem;
+ssl_certificate_key /etc/nginx/ssl/private-key.pem;</code></pre>
+
+            <h2>Pattern 2: Docker secrets</h2>
+
+            <p>For Docker Swarm, put certs in secrets. They're mounted at <code>/run/secrets/</code> read-only inside the container.</p>
+
+            <pre><code># docker-compose.yml
+secrets:
+  cert:
+    file: ./certificate.pem
+  key:
+    file: ./private-key.pem
+
+services:
+  nginx:
+    image: nginx:alpine
+    secrets: [cert, key]
+    # reference as /run/secrets/cert and /run/secrets/key</code></pre>
+
+            <h2>Pattern 3: Build certs into the image (dev only)</h2>
+
+            <pre><code>FROM nginx:alpine
+COPY certificate.pem /etc/nginx/ssl/
+COPY private-key.pem /etc/nginx/ssl/
+COPY nginx.conf /etc/nginx/nginx.conf</code></pre>
+
+            <blockquote><strong>Never</strong> ship a container image to a registry with the private key baked in. Anyone who pulls the image can extract the key. Use mount or secrets for anything that leaves your laptop.</blockquote>
+
+            <h2>Trust a self-signed cert inside the container</h2>
+
+            <p>If your app runs in a container and needs to call an HTTPS service with a self-signed cert:</p>
+
+            <pre><code># Dockerfile — Debian/Ubuntu-based
+COPY ca.pem /usr/local/share/ca-certificates/my-ca.crt
+RUN update-ca-certificates</code></pre>
+
+            <p>Alpine:</p>
+            <pre><code>COPY ca.pem /usr/local/share/ca-certificates/my-ca.crt
+RUN apk add --no-cache ca-certificates && update-ca-certificates</code></pre>
+
+            <h2>Pattern 4: Caddy (auto-HTTPS in a container)</h2>
+
+            <p>For pure local dev, Caddy will generate a self-signed cert on the fly:</p>
+
+            <pre><code># Caddyfile
+localhost {
+    reverse_proxy app:3000
+    tls internal
+}</code></pre>
+
+            <p><code>tls internal</code> tells Caddy to mint a cert from its internal CA. Trust Caddy's CA in your OS once, and everything it serves is trusted for the duration of the cert.</p>
+
+            <h2>Troubleshooting</h2>
+
+            <h3>"SSL_CTX_use_PrivateKey_file failed"</h3>
+            <p>The container can't read the key file. Check volume mount permissions, and make sure the file isn't empty (a common silent failure when a volume path is wrong — it creates an empty directory instead of mounting the file).</p>
+
+            <h3>Client inside container can't verify a self-signed server</h3>
+            <p>You need to trust the cert inside the container — see the <code>update-ca-certificates</code> pattern above. For Node.js containers, mount the cert and set <code>NODE_EXTRA_CA_CERTS</code>.</p>
+
+            <div class="guide-cta">
+                <strong>Need a self-signed certificate?</strong> Use our <a href="/">free generator</a> — browser-compatible SANs, RSA or ECDSA, ZIP or PFX. No signup, no ads, keys never stored.
+            </div>
+
+            <h2>Further Reading</h2>
+            <ul>
+                <li><a href="/guides/self-signed-cert-nginx">Nginx setup</a></li>
+                <li><a href="/guides/self-signed-cert-nodejs">Node.js HTTPS</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer class="cd-footer py-6">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="cd-footer-warning text-sm font-semibold mb-2">Self-signed certificates are intended for development and testing only. Do not use them in production.</p>
+            <p class="cd-footer-sub text-sm"><strong>Certificate Depot</strong> &mdash; Free and open source, forever. No ads, no tracking cookies, no stored keys.</p>
+        </div>
+    </footer>
+</body>
+</html>

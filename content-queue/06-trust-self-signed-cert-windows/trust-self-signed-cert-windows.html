@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9JTD7HTGCG"></script>
+    <script src="/static/js/gtag.js"></script>
+
+    <title>How to Trust a Self-Signed Certificate on Windows | Certificate Depot</title>
+    <meta name="description" content="Install a self-signed certificate into the Windows Trusted Root store via certmgr, MMC, or PowerShell. Applies to Chrome, Edge, and most Windows apps.">
+    <link rel="canonical" href="https://cert-depot.com/guides/trust-self-signed-cert-windows">
+
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://cert-depot.com/guides/trust-self-signed-cert-windows">
+    <meta property="og:title" content="How to Trust a Self-Signed Certificate on Windows">
+    <meta property="og:description" content="Install a self-signed certificate into the Windows Trusted Root store via certmgr, MMC, or PowerShell. Applies to Chrome, Edge, and most Windows apps.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/guide.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="cd-header py-8">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <a href="/" class="inline-block">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Certificate Depot</h1>
+            </a>
+            <p class="mt-2 text-sm sm:text-base font-medium">Guides</p>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <article class="guide-body">
+            <div class="guide-breadcrumb">
+                <a href="/">Home</a> &rsaquo; Guides &rsaquo; Trust on Windows
+            </div>
+
+            <h1>How to Trust a Self-Signed Certificate on Windows</h1>
+            <p class="subtitle">Add your certificate to the Windows Trusted Root store — the GUI and PowerShell ways.</p>
+
+            <p>Windows maintains certificate stores for both the current user and the local machine. For a certificate to be trusted system-wide, install it into <strong>Local Machine &rsaquo; Trusted Root Certification Authorities</strong>.</p>
+
+            <h2>Method 1: Double-click (easiest)</h2>
+            <ol>
+                <li>Rename your certificate to <code>.crt</code> if it's <code>.pem</code> (Windows recognizes both, but <code>.crt</code> triggers the install dialog on double-click).</li>
+                <li>Double-click the file. The Certificate dialog opens.</li>
+                <li>Click <strong>Install Certificate&hellip;</strong>.</li>
+                <li>Select <strong>Local Machine</strong> (requires admin confirmation). Click Next.</li>
+                <li>Choose <strong>Place all certificates in the following store</strong>, then <strong>Browse</strong>.</li>
+                <li>Select <strong>Trusted Root Certification Authorities</strong>, click OK, then Next, then Finish.</li>
+                <li>Confirm the security warning dialog.</li>
+            </ol>
+
+            <h2>Method 2: PowerShell</h2>
+            <pre><code>Import-Certificate -FilePath "C:\path\to\certificate.crt" `
+  -CertStoreLocation Cert:\LocalMachine\Root</code></pre>
+            <p>To install for the current user only (no admin required):</p>
+            <pre><code>Import-Certificate -FilePath "C:\path\to\certificate.crt" `
+  -CertStoreLocation Cert:\CurrentUser\Root</code></pre>
+
+            <h2>Method 3: MMC (full control)</h2>
+            <ol>
+                <li>Press <kbd>Win+R</kbd>, type <code>mmc</code>, press Enter.</li>
+                <li><strong>File &rsaquo; Add/Remove Snap-in &rsaquo;</strong> select <strong>Certificates</strong>, click Add.</li>
+                <li>Choose <strong>Computer account</strong>, click Next, then Finish.</li>
+                <li>Expand <strong>Trusted Root Certification Authorities &rsaquo; Certificates</strong>.</li>
+                <li>Right-click <strong>All Tasks &rsaquo; Import&hellip;</strong> — walk through the wizard.</li>
+            </ol>
+
+            <h2>Verify It Worked</h2>
+            <pre><code>certutil -store Root | findstr "Your Cert CN"</code></pre>
+            <p>Or in PowerShell:</p>
+            <pre><code>Get-ChildItem -Path Cert:\LocalMachine\Root | Where-Object { $_.Subject -match "your-domain.local" }</code></pre>
+
+            <p>Restart Chrome/Edge and visit your HTTPS site — the padlock should be clean, no warning.</p>
+
+            <h2>Removing the Certificate</h2>
+            <pre><code># PowerShell — by thumbprint
+Get-ChildItem Cert:\LocalMachine\Root | Where-Object { $_.Subject -match "your-domain.local" } | Remove-Item</code></pre>
+
+            <h2>Troubleshooting</h2>
+
+            <h3>Cert installs but browser still shows warning</h3>
+            <p>Fully close Chrome/Edge (check Task Manager) and restart. The trust store is cached in-process.</p>
+
+            <h3>"The parameter is incorrect" during import</h3>
+            <p>The file is probably not a valid X.509 certificate. Check with our <a href="/tools/pem-decoder">PEM decoder</a> — if it fails to parse there too, the file is corrupted or the wrong type (maybe a private key?).</p>
+
+            <h3>Certificate has no SAN</h3>
+            <p>Installing the cert as trusted doesn't bypass the SAN check. Browsers will still reject certs without a matching SAN. Regenerate with <a href="/">our generator</a>.</p>
+
+            <div class="guide-cta">
+                <strong>Need a self-signed certificate?</strong> Use our <a href="/">free generator</a> — browser-compatible SANs, RSA or ECDSA, ZIP or PFX. No signup, no ads, keys never stored.
+            </div>
+
+            <h2>Further Reading</h2>
+            <ul>
+                <li><a href="/guides/trust-self-signed-cert-chrome">Trust in Chrome (all OSes)</a></li>
+                <li><a href="/guides/self-signed-cert-nginx">Self-signed cert for Nginx</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer class="cd-footer py-6">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="cd-footer-warning text-sm font-semibold mb-2">Self-signed certificates are intended for development and testing only. Do not use them in production.</p>
+            <p class="cd-footer-sub text-sm"><strong>Certificate Depot</strong> &mdash; Free and open source, forever. No ads, no tracking cookies, no stored keys.</p>
+        </div>
+    </footer>
+</body>
+</html>

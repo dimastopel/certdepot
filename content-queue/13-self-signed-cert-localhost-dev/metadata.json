@@ -1,0 +1,6 @@
+{
+  "type": "guide",
+  "slug": "self-signed-cert-localhost-dev",
+  "title": "Self-Signed Certificates for localhost Development",
+  "priority": "0.7"
+}

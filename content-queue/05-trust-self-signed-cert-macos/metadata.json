@@ -1,0 +1,6 @@
+{
+  "type": "guide",
+  "slug": "trust-self-signed-cert-macos",
+  "title": "How to Trust a Self-Signed Certificate on macOS",
+  "priority": "0.7"
+}

@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"regexp"
 	"sync"
 	"time"
 
@@ -68,6 +69,27 @@ func main() {
 		w.Header().Set("Content-Type", "application/xml; charset=utf-8")
 		w.Write(data)
 	})
+
+	// Serve tool and guide pages from static/tools/ and static/guides/
+	slugRe := regexp.MustCompile(`^[a-z0-9-]{1,64}$`)
+	servePage := func(dir string) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			slug := r.PathValue("slug")
+			if !slugRe.MatchString(slug) {
+				http.NotFound(w, r)
+				return
+			}
+			data, err := staticFiles.ReadFile("static/" + dir + "/" + slug + ".html")
+			if err != nil {
+				http.NotFound(w, r)
+				return
+			}
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Write(data)
+		}
+	}
+	mux.HandleFunc("GET /tools/{slug}", servePage("tools"))
+	mux.HandleFunc("GET /guides/{slug}", servePage("guides"))
 
 	// Serve index.html at root
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {

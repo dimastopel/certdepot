@@ -1,0 +1,6 @@
+{
+  "type": "guide",
+  "slug": "self-signed-cert-apache",
+  "title": "Self-Signed SSL Certificate for Apache HTTP Server",
+  "priority": "0.7"
+}

@@ -1,0 +1,6 @@
+{
+  "type": "guide",
+  "slug": "rsa-vs-ecdsa-self-signed",
+  "title": "RSA vs ECDSA for Self-Signed Certificates",
+  "priority": "0.7"
+}

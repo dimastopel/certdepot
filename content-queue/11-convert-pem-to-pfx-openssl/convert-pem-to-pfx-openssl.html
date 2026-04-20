@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9JTD7HTGCG"></script>
+    <script src="/static/js/gtag.js"></script>
+
+    <title>Convert PEM to PFX (PKCS#12) with OpenSSL | Certificate Depot</title>
+    <meta name="description" content="Convert a PEM certificate and private key into a single PKCS#12 .pfx file using OpenSSL. Includes common errors and the reverse conversion.">
+    <link rel="canonical" href="https://cert-depot.com/guides/convert-pem-to-pfx-openssl">
+
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://cert-depot.com/guides/convert-pem-to-pfx-openssl">
+    <meta property="og:title" content="Convert PEM to PFX (PKCS#12) with OpenSSL">
+    <meta property="og:description" content="Convert a PEM certificate and private key into a single PKCS#12 .pfx file using OpenSSL. Includes common errors and the reverse conversion.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/guide.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="cd-header py-8">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <a href="/" class="inline-block">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Certificate Depot</h1>
+            </a>
+            <p class="mt-2 text-sm sm:text-base font-medium">Guides</p>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <article class="guide-body">
+            <div class="guide-breadcrumb">
+                <a href="/">Home</a> &rsaquo; Guides &rsaquo; PEM → PFX
+            </div>
+
+            <h1>Convert PEM to PFX (PKCS#12) with OpenSSL</h1>
+            <p class="subtitle">Bundle your cert and key into a single password-protected PFX file — the format Windows, IIS, and Java expect.</p>
+
+            <p>PEM (two files: <code>.crt</code> + <code>.key</code>) is the native format on Linux and most open-source servers. PFX (also called PKCS#12, <code>.pfx</code>, or <code>.p12</code>) bundles both into a single password-protected file — required by IIS, Windows Certificate Store, and Java keystores.</p>
+
+            <h2>Basic conversion</h2>
+
+            <pre><code>openssl pkcs12 -export \
+  -out certificate.pfx \
+  -inkey private-key.pem \
+  -in certificate.pem \
+  -name "My Certificate"</code></pre>
+
+            <p>OpenSSL will prompt for a password. Enter something non-empty — Windows refuses to import PFX files with empty passwords.</p>
+
+            <h2>Including a CA chain</h2>
+
+            <p>If your cert has a chain (intermediate CA certs), include them with <code>-certfile</code>:</p>
+
+            <pre><code>openssl pkcs12 -export \
+  -out certificate.pfx \
+  -inkey private-key.pem \
+  -in certificate.pem \
+  -certfile ca-chain.pem \
+  -name "My Certificate"</code></pre>
+
+            <h2>Scripting (non-interactive)</h2>
+
+            <p>To avoid the password prompt, pass it via <code>-passout</code>:</p>
+
+            <pre><code>openssl pkcs12 -export \
+  -out certificate.pfx \
+  -inkey private-key.pem \
+  -in certificate.pem \
+  -password pass:MyPassword123</code></pre>
+
+            <blockquote><strong>Security warning:</strong> Using <code>pass:</code> puts the password in your shell history and process list. Prefer <code>file:/path/to/passwordfile</code> or <code>env:VARNAME</code>.</blockquote>
+
+            <h2>Skip the conversion entirely</h2>
+
+            <p><a href="/">Our generator</a> can output PFX directly. Pick "PFX" as the output format, enter a password, and get a ready-to-import file.</p>
+
+            <h2>Reverse: PFX to PEM</h2>
+
+            <p>Extract the certificate:</p>
+            <pre><code>openssl pkcs12 -in certificate.pfx -clcerts -nokeys -out certificate.pem</code></pre>
+
+            <p>Extract the private key (unencrypted — dev only):</p>
+            <pre><code>openssl pkcs12 -in certificate.pfx -nocerts -nodes -out private-key.pem</code></pre>
+
+            <p>Extract the CA chain only:</p>
+            <pre><code>openssl pkcs12 -in certificate.pfx -cacerts -nokeys -out ca-chain.pem</code></pre>
+
+            <h2>Modern vs legacy PKCS#12</h2>
+
+            <p>OpenSSL 3+ uses modern PKCS#12 encryption (AES-256) by default, which some older Windows versions can't read. If IIS or a legacy Windows tool refuses to import your PFX, regenerate with legacy encryption:</p>
+
+            <pre><code>openssl pkcs12 -export -legacy \
+  -out certificate.pfx \
+  -inkey private-key.pem \
+  -in certificate.pem</code></pre>
+
+            <h2>Troubleshooting</h2>
+
+            <h3>"Error unable to get local issuer certificate"</h3>
+            <p>Your cert is signed by a chain your OpenSSL can't resolve. Use <code>-certfile</code> to supply the chain, or use <code>-CAfile /etc/ssl/certs/ca-certificates.crt</code>.</p>
+
+            <h3>"Mac verify error"</h3>
+            <p>Wrong password when decrypting a PFX. If you don't know the password, there's no recovery — you'll need the original PEM files.</p>
+
+            <h3>The PFX imports but is "not associated with a private key"</h3>
+            <p>The private key didn't match the certificate's public key. Check with our <a href="/tools/pem-decoder">PEM decoder</a> — if the public key differs from what your key computes, they're not a matching pair.</p>
+
+            <div class="guide-cta">
+                <strong>Need a self-signed certificate?</strong> Use our <a href="/">free generator</a> — browser-compatible SANs, RSA or ECDSA, ZIP or PFX. No signup, no ads, keys never stored.
+            </div>
+
+            <h2>Further Reading</h2>
+            <ul>
+                <li><a href="/guides/self-signed-cert-nginx">Nginx setup (uses PEM)</a></li>
+                <li><a href="/guides/trust-self-signed-cert-windows">Trust on Windows (often uses PFX)</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer class="cd-footer py-6">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="cd-footer-warning text-sm font-semibold mb-2">Self-signed certificates are intended for development and testing only. Do not use them in production.</p>
+            <p class="cd-footer-sub text-sm"><strong>Certificate Depot</strong> &mdash; Free and open source, forever. No ads, no tracking cookies, no stored keys.</p>
+        </div>
+    </footer>
+</body>
+</html>

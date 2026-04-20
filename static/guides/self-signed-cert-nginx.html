@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9JTD7HTGCG"></script>
+    <script src="/static/js/gtag.js"></script>
+
+    <title>Self-Signed SSL Certificate for Nginx — Step-by-Step Guide | Certificate Depot</title>
+    <meta name="description" content="Complete guide to configuring a self-signed SSL/TLS certificate on Nginx. Generate the cert, configure the server block, reload Nginx, and verify HTTPS is working.">
+    <link rel="canonical" href="https://cert-depot.com/guides/self-signed-cert-nginx">
+
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://cert-depot.com/guides/self-signed-cert-nginx">
+    <meta property="og:title" content="Self-Signed SSL Certificate for Nginx — Step-by-Step Guide">
+    <meta property="og:description" content="Generate a self-signed SSL certificate and configure Nginx to serve HTTPS traffic in under five minutes.">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "How to Set Up a Self-Signed Certificate for Nginx",
+        "description": "Configure Nginx to serve HTTPS using a self-signed SSL/TLS certificate.",
+        "step": [
+            {"@type": "HowToStep", "name": "Generate the certificate", "text": "Use cert-depot.com or OpenSSL to generate a certificate and private key."},
+            {"@type": "HowToStep", "name": "Install the files", "text": "Copy the certificate and key into /etc/nginx/ssl/."},
+            {"@type": "HowToStep", "name": "Configure the server block", "text": "Add listen 443 ssl, ssl_certificate, and ssl_certificate_key directives."},
+            {"@type": "HowToStep", "name": "Reload Nginx", "text": "Test the config with nginx -t, then reload with systemctl reload nginx."}
+        ]
+    }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/guide.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="cd-header py-8">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <a href="/" class="inline-block">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Certificate Depot</h1>
+            </a>
+            <p class="mt-2 text-sm sm:text-base font-medium">Guides</p>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <article class="guide-body">
+            <div class="guide-breadcrumb">
+                <a href="/">Home</a> &rsaquo; Guides &rsaquo; Nginx
+            </div>
+
+            <h1>Self-Signed SSL Certificate for Nginx</h1>
+            <p class="subtitle">A practical step-by-step guide. Generates a working HTTPS setup in under five minutes.</p>
+
+            <p>Self-signed certificates are perfect for local development, staging servers, internal tools, and learning how TLS works. Browsers will display a warning because the certificate isn't signed by a trusted CA, but the traffic itself is encrypted the same way as with a Let's Encrypt cert.</p>
+
+            <h2>Step 1: Generate the Certificate</h2>
+
+            <p>The fastest way is to use <a href="/">cert-depot.com</a> — enter your domain, click generate, and download the ZIP. You'll get two files: <code>certificate.pem</code> and <code>private-key.pem</code>.</p>
+
+            <p>If you prefer the command line with OpenSSL:</p>
+
+            <pre><code>openssl req -x509 -newkey rsa:2048 -nodes \
+  -keyout private-key.pem -out certificate.pem \
+  -days 365 \
+  -subj "/CN=localhost" \
+  -addext "subjectAltName=DNS:localhost,DNS:example.local,IP:127.0.0.1"</code></pre>
+
+            <blockquote>
+                <strong>Important:</strong> Always include a Subject Alternative Name (SAN). Modern browsers (Chrome 58+, released 2017) ignore the Common Name field and will reject certificates without a matching SAN, even if the CN is correct.
+            </blockquote>
+
+            <h2>Step 2: Install the Files</h2>
+
+            <p>Place the certificate and key somewhere Nginx can read them. A common convention is <code>/etc/nginx/ssl/</code>:</p>
+
+            <pre><code>sudo mkdir -p /etc/nginx/ssl
+sudo cp certificate.pem /etc/nginx/ssl/
+sudo cp private-key.pem /etc/nginx/ssl/
+sudo chmod 600 /etc/nginx/ssl/private-key.pem
+sudo chown root:root /etc/nginx/ssl/*</code></pre>
+
+            <p>The <code>chmod 600</code> on the private key is critical — it should not be readable by any user other than root.</p>
+
+            <h2>Step 3: Configure the Server Block</h2>
+
+            <p>Edit your site configuration (typically <code>/etc/nginx/sites-available/default</code> or a file under <code>/etc/nginx/conf.d/</code>):</p>
+
+            <pre><code>server {
+    listen 443 ssl;
+    server_name example.local;
+
+    ssl_certificate     /etc/nginx/ssl/certificate.pem;
+    ssl_certificate_key /etc/nginx/ssl/private-key.pem;
+
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    location / {
+        root /var/www/html;
+        index index.html;
+    }
+}
+
+# Optional: redirect HTTP to HTTPS
+server {
+    listen 80;
+    server_name example.local;
+    return 301 https://$server_name$request_uri;
+}</code></pre>
+
+            <h2>Step 4: Test and Reload</h2>
+
+            <p>Always test the configuration before reloading Nginx to avoid downtime:</p>
+
+            <pre><code>sudo nginx -t
+sudo systemctl reload nginx</code></pre>
+
+            <p>If <code>nginx -t</code> reports errors, fix them before reloading. Common issues: typo in file paths, missing file, or wrong file permissions.</p>
+
+            <h2>Step 5: Verify HTTPS is Working</h2>
+
+            <p>Use curl to confirm the certificate is being served (the <code>-k</code> flag tells curl to ignore the untrusted-certificate warning):</p>
+
+            <pre><code>curl -kvI https://example.local/</code></pre>
+
+            <p>You should see the certificate details in the output. To inspect exactly what's being served:</p>
+
+            <pre><code>openssl s_client -connect example.local:443 -servername example.local \
+  &lt;/dev/null 2&gt;/dev/null | openssl x509 -text -noout</code></pre>
+
+            <p>Or paste the certificate into our <a href="/tools/pem-decoder">PEM decoder</a> to see its details in a friendlier format.</p>
+
+            <h2>Troubleshooting</h2>
+
+            <h3>Browser shows "Your connection is not private"</h3>
+            <p>This is expected with a self-signed certificate. In Chrome, click "Advanced" and then "Proceed to example.local (unsafe)". To avoid the warning entirely, you need to <a href="/guides/trust-self-signed-cert-chrome">trust the certificate in your system's certificate store</a>.</p>
+
+            <h3>Nginx won't start with "cannot load certificate"</h3>
+            <p>Check that the certificate file exists and Nginx can read it. Run <code>sudo ls -la /etc/nginx/ssl/</code> and verify the paths in your config match exactly.</p>
+
+            <h3>Certificate errors despite the correct CN</h3>
+            <p>This almost always means your certificate doesn't have a matching Subject Alternative Name. Regenerate it including the hostname as a SAN — see Step 1.</p>
+
+            <div class="guide-cta">
+                <strong>Skip the OpenSSL command-line hassle.</strong> Use our <a href="/">free self-signed certificate generator</a> to get a browser-friendly certificate with SANs in one click. RSA or ECDSA, ZIP or PFX output, no signup required.
+            </div>
+
+            <h2>Further Reading</h2>
+            <ul>
+                <li><a href="/guides/trust-self-signed-cert-chrome">How to trust a self-signed certificate in Chrome</a></li>
+                <li><a href="/guides/self-signed-cert-apache">Self-signed certificate for Apache</a></li>
+                <li><a href="/guides/rsa-vs-ecdsa-self-signed">RSA vs ECDSA: which to choose for self-signed certificates</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer class="cd-footer py-6">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="cd-footer-warning text-sm font-semibold mb-2">Self-signed certificates are intended for development and testing only. Do not use them in production.</p>
+            <p class="cd-footer-sub text-sm"><strong>Certificate Depot</strong> &mdash; Free and open source, forever. No ads, no tracking cookies, no stored keys.</p>
+        </div>
+    </footer>
+</body>
+</html>

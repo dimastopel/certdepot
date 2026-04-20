@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9JTD7HTGCG"></script>
+    <script src="/static/js/gtag.js"></script>
+
+    <title>Self-Signed SSL Certificate for Node.js HTTPS Server | Certificate Depot</title>
+    <meta name="description" content="Configure a Node.js https server with a self-signed SSL certificate. Includes examples for native https module, Express, and Fastify.">
+    <link rel="canonical" href="https://cert-depot.com/guides/self-signed-cert-nodejs">
+
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://cert-depot.com/guides/self-signed-cert-nodejs">
+    <meta property="og:title" content="Self-Signed SSL Certificate for Node.js HTTPS Server">
+    <meta property="og:description" content="Configure a Node.js https server with a self-signed SSL certificate. Includes examples for native https module, Express, and Fastify.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/guide.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="cd-header py-8">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <a href="/" class="inline-block">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Certificate Depot</h1>
+            </a>
+            <p class="mt-2 text-sm sm:text-base font-medium">Guides</p>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <article class="guide-body">
+            <div class="guide-breadcrumb">
+                <a href="/">Home</a> &rsaquo; Guides &rsaquo; Node.js
+            </div>
+
+            <h1>Self-Signed SSL Certificate for Node.js HTTPS Server</h1>
+            <p class="subtitle">Run a Node.js HTTPS server with a self-signed certificate — native, Express, and Fastify examples.</p>
+
+            <p>Node.js has built-in HTTPS support via the <code>https</code> module. You just need to load your certificate and key, and pass them as options to <code>createServer</code>.</p>
+
+            <h2>Step 1: Generate the Certificate</h2>
+
+            <p>Use <a href="/">cert-depot.com</a> for a browser-friendly cert, or:</p>
+
+            <pre><code>openssl req -x509 -newkey rsa:2048 -nodes \
+  -keyout key.pem -out cert.pem -days 365 \
+  -subj "/CN=localhost" \
+  -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"</code></pre>
+
+            <h2>Native https module</h2>
+
+            <pre><code>const https = require("node:https");
+const fs = require("node:fs");
+
+const options = {
+    key: fs.readFileSync("key.pem"),
+    cert: fs.readFileSync("cert.pem"),
+};
+
+https.createServer(options, (req, res) =&gt; {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("Hello over TLS!\n");
+}).listen(3443, () =&gt; {
+    console.log("Listening on https://localhost:3443/");
+});</code></pre>
+
+            <h2>Express</h2>
+
+            <pre><code>const express = require("express");
+const https = require("node:https");
+const fs = require("node:fs");
+
+const app = express();
+app.get("/", (req, res) =&gt; res.send("Hello over TLS!"));
+
+https.createServer({
+    key: fs.readFileSync("key.pem"),
+    cert: fs.readFileSync("cert.pem"),
+}, app).listen(3443, () =&gt; {
+    console.log("Express listening on https://localhost:3443/");
+});</code></pre>
+
+            <h2>Fastify</h2>
+
+            <pre><code>const fastify = require("fastify")({
+    https: {
+        key: require("node:fs").readFileSync("key.pem"),
+        cert: require("node:fs").readFileSync("cert.pem"),
+    },
+});
+
+fastify.get("/", async () =&gt; ({ hello: "world" }));
+fastify.listen({ port: 3443 });</code></pre>
+
+            <h2>Making fetch / axios / node-fetch trust the certificate</h2>
+
+            <p>By default, Node.js rejects self-signed certificates when acting as a client. For development only:</p>
+
+            <pre><code># Run with NODE_TLS_REJECT_UNAUTHORIZED=0 — insecure, dev only
+NODE_TLS_REJECT_UNAUTHORIZED=0 node client.js</code></pre>
+
+            <p>A better approach: point Node.js at the cert via <code>NODE_EXTRA_CA_CERTS</code>:</p>
+
+            <pre><code>NODE_EXTRA_CA_CERTS=./cert.pem node client.js</code></pre>
+
+            <p>Or pass it per-request with the <code>ca</code> option in <code>https.Agent</code>.</p>
+
+            <blockquote><strong>Never</strong> set <code>NODE_TLS_REJECT_UNAUTHORIZED=0</code> in production. It disables all certificate validation, making every HTTPS call vulnerable to MitM attacks. Use <code>NODE_EXTRA_CA_CERTS</code> instead.</blockquote>
+
+            <h2>PFX / PKCS#12 alternative</h2>
+
+            <p>Instead of separate key and cert, you can load a single PFX file:</p>
+
+            <pre><code>https.createServer({
+    pfx: fs.readFileSync("cert.pfx"),
+    passphrase: "your-password",
+}, app).listen(3443);</code></pre>
+
+            <p><a href="/">Our generator</a> produces PFX files directly.</p>
+
+            <div class="guide-cta">
+                <strong>Need a self-signed certificate?</strong> Use our <a href="/">free generator</a> — browser-compatible SANs, RSA or ECDSA, ZIP or PFX. No signup, no ads, keys never stored.
+            </div>
+
+            <h2>Further Reading</h2>
+            <ul>
+                <li><a href="/guides/self-signed-cert-nginx">Nginx setup</a></li>
+                <li><a href="/guides/rsa-vs-ecdsa-self-signed">RSA vs ECDSA</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer class="cd-footer py-6">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="cd-footer-warning text-sm font-semibold mb-2">Self-signed certificates are intended for development and testing only. Do not use them in production.</p>
+            <p class="cd-footer-sub text-sm"><strong>Certificate Depot</strong> &mdash; Free and open source, forever. No ads, no tracking cookies, no stored keys.</p>
+        </div>
+    </footer>
+</body>
+</html>

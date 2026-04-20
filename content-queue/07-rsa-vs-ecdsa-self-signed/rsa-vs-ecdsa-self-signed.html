@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9JTD7HTGCG"></script>
+    <script src="/static/js/gtag.js"></script>
+
+    <title>RSA vs ECDSA for Self-Signed Certificates | Certificate Depot</title>
+    <meta name="description" content="A practical comparison: RSA 2048, RSA 4096, ECDSA P-256, ECDSA P-384. Speed, size, compatibility, and which one to pick for your use case.">
+    <link rel="canonical" href="https://cert-depot.com/guides/rsa-vs-ecdsa-self-signed">
+
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://cert-depot.com/guides/rsa-vs-ecdsa-self-signed">
+    <meta property="og:title" content="RSA vs ECDSA for Self-Signed Certificates">
+    <meta property="og:description" content="A practical comparison: RSA 2048, RSA 4096, ECDSA P-256, ECDSA P-384. Speed, size, compatibility, and which one to pick for your use case.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/guide.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="cd-header py-8">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <a href="/" class="inline-block">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Certificate Depot</h1>
+            </a>
+            <p class="mt-2 text-sm sm:text-base font-medium">Guides</p>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <article class="guide-body">
+            <div class="guide-breadcrumb">
+                <a href="/">Home</a> &rsaquo; Guides &rsaquo; RSA vs ECDSA
+            </div>
+
+            <h1>RSA vs ECDSA for Self-Signed Certificates</h1>
+            <p class="subtitle">Which key algorithm should you pick? Short answer: ECDSA P-256 if everything you're integrating with supports it. RSA 2048 otherwise.</p>
+
+            <p>When you generate a self-signed certificate, you pick a key algorithm. <a href="/">Our generator</a> offers RSA 2048, RSA 4096, ECDSA P-256, and ECDSA P-384. Here's how to choose.</p>
+
+            <h2>Quick Summary</h2>
+
+            <ul>
+                <li><strong>ECDSA P-256</strong> — default for new services. Smaller, faster, cryptographically equivalent to RSA 3072.</li>
+                <li><strong>RSA 2048</strong> — maximum compatibility. If you don't know what will consume the cert, use this.</li>
+                <li><strong>RSA 4096</strong> — only if a compliance checklist demands it. Slower, larger, no meaningful security advantage over RSA 3072 for normal use.</li>
+                <li><strong>ECDSA P-384</strong> — for high-assurance scenarios. Overkill for most self-signed certs.</li>
+            </ul>
+
+            <h2>Speed</h2>
+
+            <p>ECDSA is dramatically faster for signing. On a modern CPU:</p>
+            <ul>
+                <li>RSA 2048 sign: ~1 ms</li>
+                <li>RSA 4096 sign: ~6 ms (6x slower)</li>
+                <li>ECDSA P-256 sign: ~0.04 ms (25x faster than RSA 2048)</li>
+            </ul>
+
+            <p>For a TLS handshake, this matters on high-traffic servers. For a self-signed cert in development, it's immaterial.</p>
+
+            <h2>Key Size and Certificate Size</h2>
+
+            <p>ECDSA keys are tiny compared to RSA:</p>
+            <ul>
+                <li>RSA 2048: public key is ~294 bytes, cert is ~1.2 KB</li>
+                <li>RSA 4096: public key is ~550 bytes, cert is ~1.8 KB</li>
+                <li>ECDSA P-256: public key is ~91 bytes, cert is ~700 bytes</li>
+            </ul>
+
+            <p>Smaller certs = faster TLS handshakes, especially on mobile.</p>
+
+            <h2>Security Equivalence</h2>
+
+            <p>NIST publishes <a href="https://www.keylength.com/en/4/" target="_blank" rel="noopener">equivalent strength tables</a>. Summary:</p>
+
+            <ul>
+                <li>ECDSA P-256 ≈ RSA 3072 (128-bit security)</li>
+                <li>ECDSA P-384 ≈ RSA 7680 (192-bit security)</li>
+                <li>RSA 2048 ≈ 112-bit security (acceptable through ~2030)</li>
+                <li>RSA 4096 ≈ 140-bit security</li>
+            </ul>
+
+            <p>Both families resist all currently known classical attacks at these sizes. Both are broken by a sufficiently large quantum computer, which doesn't exist yet.</p>
+
+            <h2>Compatibility</h2>
+
+            <p>RSA is universally supported. Every SSL/TLS client ever built speaks RSA.</p>
+
+            <p>ECDSA is supported by:</p>
+            <ul>
+                <li>All modern browsers (Chrome, Safari, Firefox, Edge — full support since ~2013)</li>
+                <li>curl, wget, OpenSSL, GnuTLS, BoringSSL</li>
+                <li>Go, Rust, Node.js, Python, Java 8+, .NET Core</li>
+                <li>All recent Linux distributions, macOS 10.9+, Windows 7+</li>
+            </ul>
+
+            <p>ECDSA is <em>not</em> supported by some very old embedded devices, certain industrial control systems, Java before 7, and some legacy load balancer firmware. If you're integrating with anything in that list, choose RSA.</p>
+
+            <h2>Practical Recommendations</h2>
+
+            <h3>Local development, modern stack</h3>
+            <p>Use <strong>ECDSA P-256</strong>. It's faster, smaller, and everything you care about supports it.</p>
+
+            <h3>Enterprise / legacy integration</h3>
+            <p>Use <strong>RSA 2048</strong>. You don't know what 20-year-old appliance will encounter the cert; RSA is the safe bet.</p>
+
+            <h3>Compliance requires 4096+</h3>
+            <p>Use <strong>RSA 4096</strong> or <strong>ECDSA P-384</strong>. The compliance requirement is usually a checkbox, not a cryptographic necessity.</p>
+
+            <h3>Air-gapped / future-proofing</h3>
+            <p>Neither is quantum-safe. When post-quantum crypto is standardized (ML-DSA etc.), you'll want to regenerate anyway. Don't pick an algorithm based on quantum threats today.</p>
+
+            <div class="guide-cta">
+                <strong>Need a self-signed certificate?</strong> Use our <a href="/">free generator</a> — browser-compatible SANs, RSA or ECDSA, ZIP or PFX. No signup, no ads, keys never stored.
+            </div>
+
+            <h2>Further Reading</h2>
+            <ul>
+                <li><a href="/guides/self-signed-cert-nginx">Configure your cert on Nginx</a></li>
+                <li><a href="/guides/why-sans-matter">Why SANs matter</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer class="cd-footer py-6">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="cd-footer-warning text-sm font-semibold mb-2">Self-signed certificates are intended for development and testing only. Do not use them in production.</p>
+            <p class="cd-footer-sub text-sm"><strong>Certificate Depot</strong> &mdash; Free and open source, forever. No ads, no tracking cookies, no stored keys.</p>
+        </div>
+    </footer>
+</body>
+</html>

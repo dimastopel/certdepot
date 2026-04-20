@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9JTD7HTGCG"></script>
+    <script src="/static/js/gtag.js"></script>
+
+    <title>How to Trust a Self-Signed Certificate in Firefox | Certificate Depot</title>
+    <meta name="description" content="Firefox maintains its own certificate store separate from the OS. Here's how to add a self-signed certificate so Firefox trusts it.">
+    <link rel="canonical" href="https://cert-depot.com/guides/trust-self-signed-cert-firefox">
+
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://cert-depot.com/guides/trust-self-signed-cert-firefox">
+    <meta property="og:title" content="How to Trust a Self-Signed Certificate in Firefox">
+    <meta property="og:description" content="Firefox maintains its own certificate store separate from the OS. Here's how to add a self-signed certificate so Firefox trusts it.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/guide.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="cd-header py-8">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <a href="/" class="inline-block">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Certificate Depot</h1>
+            </a>
+            <p class="mt-2 text-sm sm:text-base font-medium">Guides</p>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <article class="guide-body">
+            <div class="guide-breadcrumb">
+                <a href="/">Home</a> &rsaquo; Guides &rsaquo; Trust in Firefox
+            </div>
+
+            <h1>How to Trust a Self-Signed Certificate in Firefox</h1>
+            <p class="subtitle">Firefox ignores the OS trust store by default. Here's how to add your cert to Firefox's own store.</p>
+
+            <p>Firefox is the only major browser that maintains its own certificate store separate from the operating system. Installing a cert in Keychain (macOS), Certificate Manager (Windows), or <code>/etc/ssl/certs/</code> (Linux) won't affect Firefox.</p>
+
+            <h2>Option 1: Enable OS trust store</h2>
+
+            <p>Since Firefox 49, you can make Firefox honor the OS trust store via a preference:</p>
+
+            <ol>
+                <li>Open <code>about:config</code> in Firefox.</li>
+                <li>Accept the warning.</li>
+                <li>Search for <code>security.enterprise_roots.enabled</code>.</li>
+                <li>Set it to <code>true</code>.</li>
+                <li>Restart Firefox.</li>
+            </ol>
+
+            <p>Firefox will now trust certificates installed in the OS trust store. This is the easiest option if you've already installed the cert OS-wide.</p>
+
+            <h2>Option 2: Import directly into Firefox</h2>
+
+            <p>Use this if you only want Firefox to trust the cert (not the whole OS), or if the enterprise_roots option isn't working.</p>
+
+            <ol>
+                <li>Open Firefox <strong>Settings</strong>.</li>
+                <li>Search for "certificates".</li>
+                <li>Click <strong>View Certificates&hellip;</strong>.</li>
+                <li>Go to the <strong>Authorities</strong> tab.</li>
+                <li>Click <strong>Import&hellip;</strong>, select your <code>.pem</code> or <code>.crt</code> file.</li>
+                <li>Check <strong>Trust this CA to identify websites</strong>, click OK.</li>
+                <li>Restart Firefox (sometimes not required, but safer).</li>
+            </ol>
+
+            <h2>Option 3: Import via the warning page</h2>
+
+            <p>When Firefox shows "Warning: Potential Security Risk Ahead" for your self-signed site:</p>
+
+            <ol>
+                <li>Click <strong>Advanced&hellip;</strong>.</li>
+                <li>Click <strong>Accept the Risk and Continue</strong>.</li>
+            </ol>
+
+            <p>This adds an exception for that specific site, but only until you clear browsing data or the cert changes. For persistent trust, use Options 1 or 2.</p>
+
+            <h2>Command line: certutil (for scripting)</h2>
+
+            <p>Firefox's cert DB is an NSS database, editable with <code>certutil</code> from <code>libnss3-tools</code> (Linux) or the Firefox installation's <code>bin/</code> directory (macOS/Windows).</p>
+
+            <p>Find the Firefox profile:</p>
+            <pre><code># Linux/macOS
+ls ~/.mozilla/firefox/  # Linux
+ls ~/Library/Application\ Support/Firefox/Profiles/  # macOS
+# Pick the default profile, e.g. abcd1234.default-release</code></pre>
+
+            <p>Add the cert:</p>
+            <pre><code>certutil -A -n "My Cert" -t "C,," \
+  -i certificate.pem \
+  -d ~/.mozilla/firefox/abcd1234.default-release</code></pre>
+
+            <p>The <code>-t "C,,"</code> flag marks it as a trusted CA for SSL.</p>
+
+            <h2>Verify it worked</h2>
+
+            <p>Visit your HTTPS site in Firefox. The padlock should be solid (not grayed out or with a warning). Click the padlock and "Connection secure" — it should show your certificate's details.</p>
+
+            <h2>Troubleshooting</h2>
+
+            <h3>Certificate imports but site still shows warning</h3>
+            <p>You imported it as a server cert instead of a CA. Go back to View Certificates &rsaquo; Authorities (not Your Certificates or Servers) and re-import with the "Trust this CA" checkbox.</p>
+
+            <h3>enterprise_roots doesn't seem to do anything</h3>
+            <p>It only works for certificates marked as "Trusted Root CA" in the OS. If you installed your cert as a regular trusted cert (not a root), Firefox won't pick it up.</p>
+
+            <h3>Cert is trusted but Firefox still complains about SANs</h3>
+            <p>Trusting a cert doesn't bypass the SAN check. The certificate must include a Subject Alternative Name matching the hostname you're visiting. Check with our <a href="/tools/pem-decoder">PEM decoder</a>.</p>
+
+            <div class="guide-cta">
+                <strong>Need a self-signed certificate?</strong> Use our <a href="/">free generator</a> — browser-compatible SANs, RSA or ECDSA, ZIP or PFX. No signup, no ads, keys never stored.
+            </div>
+
+            <h2>Further Reading</h2>
+            <ul>
+                <li><a href="/guides/trust-self-signed-cert-chrome">Trust in Chrome (all OSes)</a></li>
+                <li><a href="/guides/trust-self-signed-cert-macos">Trust on macOS</a></li>
+                <li><a href="/guides/why-sans-matter">Why SANs matter</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer class="cd-footer py-6">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="cd-footer-warning text-sm font-semibold mb-2">Self-signed certificates are intended for development and testing only. Do not use them in production.</p>
+            <p class="cd-footer-sub text-sm"><strong>Certificate Depot</strong> &mdash; Free and open source, forever. No ads, no tracking cookies, no stored keys.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,8 +1,14 @@
 # Binary
 cert-depot
+cert-depot-staging
 
 # Runtime data
 data/
+data-staging/
+logs/
+
+# Deployed content queue items
+content-queue/*.deployed/
 
 # IDE
 .idea/

@@ -1,0 +1,105 @@
+/* Guide page styles */
+.guide-body {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #334155;
+}
+.guide-body h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--deep-space);
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+.guide-body .subtitle {
+    color: #64748b;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+.guide-body h2 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--deep-space);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 2px solid var(--sky-blue);
+    padding-bottom: 0.3rem;
+}
+.guide-body h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--deep-space);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+.guide-body p {
+    margin: 0.75rem 0;
+}
+.guide-body ul, .guide-body ol {
+    margin: 0.75rem 0;
+    padding-left: 1.75rem;
+}
+.guide-body li {
+    margin: 0.35rem 0;
+}
+.guide-body code {
+    background: rgba(142, 202, 230, 0.18);
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.25rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    color: var(--deep-space);
+}
+.guide-body pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 1rem 1.25rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 1rem 0;
+}
+.guide-body pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    font-size: 0.875rem;
+}
+.guide-body blockquote {
+    border-left: 4px solid var(--amber-flame);
+    background: rgba(255, 183, 3, 0.08);
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+.guide-body a {
+    color: var(--blue-green);
+    font-weight: 600;
+    text-decoration: none;
+}
+.guide-body a:hover {
+    text-decoration: underline;
+}
+.guide-breadcrumb {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 1rem;
+}
+.guide-breadcrumb a {
+    color: var(--blue-green);
+    font-weight: 500;
+}
+.guide-cta {
+    background: linear-gradient(135deg, rgba(142, 202, 230, 0.12) 0%, rgba(33, 158, 188, 0.08) 100%);
+    border: 1px solid var(--sky-blue);
+    border-radius: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+}
+.guide-cta strong {
+    color: var(--deep-space);
+}

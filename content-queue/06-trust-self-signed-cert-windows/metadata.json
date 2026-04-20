@@ -1,0 +1,6 @@
+{
+  "type": "guide",
+  "slug": "trust-self-signed-cert-windows",
+  "title": "How to Trust a Self-Signed Certificate on Windows",
+  "priority": "0.7"
+}
