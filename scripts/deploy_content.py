@@ -96,6 +96,69 @@ def add_to_sitemap(url_path, priority):
     return True
 
 
+def update_homepage_links():
+    """Regenerate the Tools & Guides section on index.html from deploy_log.jsonl.
+
+    Reads all deployments (including the one just logged), and writes a unified
+    section between the AUTO-LINKS-START and AUTO-LINKS-END markers.
+    """
+    index_path = STATIC / "index.html"
+    index = index_path.read_text()
+
+    # Collect deployments — prefer later entries if a slug is duplicated
+    entries_by_slug = {}
+    if DEPLOY_LOG.exists():
+        with open(DEPLOY_LOG) as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    e = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                entries_by_slug[e["slug"]] = e
+
+    # Sort: tools first, then guides, each alphabetical by title
+    tools = sorted([e for e in entries_by_slug.values() if e["type"] == "tool"], key=lambda e: e["title"])
+    guides = sorted([e for e in entries_by_slug.values() if e["type"] == "guide"], key=lambda e: e["title"])
+    all_entries = tools + guides
+
+    if not all_entries:
+        return
+
+    def card(entry):
+        label = "Tool" if entry["type"] == "tool" else "Guide"
+        return (
+            f'            <a href="{entry["url"].replace("https://cert-depot.com", "")}" '
+            f'class="bg-white rounded-xl border border-gray-200 p-4 hover:border-blue-400 transition-colors">\n'
+            f'                <h3 class="cd-heading font-semibold text-sm mb-1">{entry["title"]}</h3>\n'
+            f'                <p class="text-xs text-gray-600">{label}</p>\n'
+            f'            </a>'
+        )
+
+    cards_html = "\n".join(card(e) for e in all_entries)
+
+    new_section = (
+        "    <!-- AUTO-LINKS-START -->\n"
+        "    <section class=\"w-full max-w-2xl mx-auto px-4 sm:px-6 pb-8\">\n"
+        "        <h2 class=\"cd-heading text-xl font-bold mb-4 text-center\">Tools &amp; Guides</h2>\n"
+        "        <div class=\"grid grid-cols-1 sm:grid-cols-2 gap-3\">\n"
+        f"{cards_html}\n"
+        "        </div>\n"
+        "    </section>\n"
+        "    <!-- AUTO-LINKS-END -->"
+    )
+
+    # Replace the section between markers
+    pattern = re.compile(r"    <!-- AUTO-LINKS-START -->.*?<!-- AUTO-LINKS-END -->", re.DOTALL)
+    if not pattern.search(index):
+        print("  WARNING: AUTO-LINKS markers not found in index.html — skipping homepage update.")
+        return
+    new_index = pattern.sub(new_section, index)
+    index_path.write_text(new_index)
+
+
 def rebuild_and_restart():
     """Build the binary and restart both services."""
     env = os.environ.copy()
@@ -148,10 +211,14 @@ def main():
     added = add_to_sitemap(url_path, priority)
     print(f"  Sitemap: {'added' if added else 'already present'}")
 
+    # Log before updating homepage so the new entry is included in the links section
+    log_deployment(meta, url_path)
+    update_homepage_links()
+    print("  Homepage links updated")
+
     rebuild_and_restart()
     print("  Service restarted")
 
-    log_deployment(meta, url_path)
     mark_deployed(item)
     print(f"  Deployed: {meta['title']} -> {url_path}")
 
