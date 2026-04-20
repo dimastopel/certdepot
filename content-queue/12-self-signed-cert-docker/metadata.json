@@ -1,6 +1,0 @@
-{
-  "type": "guide",
-  "slug": "self-signed-cert-docker",
-  "title": "Self-Signed SSL Certificates in Docker",
-  "priority": "0.7"
-}

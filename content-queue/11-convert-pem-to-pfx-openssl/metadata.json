@@ -1,6 +1,0 @@
-{
-  "type": "guide",
-  "slug": "convert-pem-to-pfx-openssl",
-  "title": "Convert PEM to PFX (PKCS#12) with OpenSSL",
-  "priority": "0.7"
-}
