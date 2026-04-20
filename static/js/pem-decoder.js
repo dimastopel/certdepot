@@ -7,13 +7,38 @@
     // ---------- PEM / Base64 ----------
     function pemToDer(pem) {
         const m = pem.match(/-----BEGIN ([A-Z ]+)-----([\s\S]*?)-----END \1-----/);
-        if (!m) throw new Error("Could not find a PEM block. Expected -----BEGIN CERTIFICATE-----.");
+        if (!m) {
+            if (/-----BEGIN/.test(pem) && !/-----END/.test(pem)) {
+                throw new Error("The certificate looks truncated — couldn't find the matching -----END CERTIFICATE----- line.");
+            }
+            throw new Error("Couldn't find a PEM block. The input should start with -----BEGIN CERTIFICATE----- and end with -----END CERTIFICATE-----.");
+        }
         const label = m[1].trim();
+        if (label === "PRIVATE KEY" || label === "RSA PRIVATE KEY" || label === "EC PRIVATE KEY" || label === "ENCRYPTED PRIVATE KEY") {
+            throw new Error("This is a private key, not a certificate. This tool only decodes certificates (the .pem / .crt public part).");
+        }
+        if (label === "CERTIFICATE REQUEST" || label === "NEW CERTIFICATE REQUEST") {
+            throw new Error("This is a Certificate Signing Request (CSR), not a certificate. This tool only decodes certificates.");
+        }
+        if (label === "PUBLIC KEY") {
+            throw new Error("This is a public key, not a certificate. This tool only decodes X.509 certificates.");
+        }
         if (label !== "CERTIFICATE") {
-            throw new Error(`Expected CERTIFICATE block, got ${label}.`);
+            throw new Error(`Expected a CERTIFICATE block, found "${label}" instead.`);
         }
         const b64 = m[2].replace(/\s+/g, "");
-        const bin = atob(b64);
+        if (b64.length === 0) {
+            throw new Error("The certificate block is empty.");
+        }
+        if (!/^[A-Za-z0-9+/]*={0,2}$/.test(b64)) {
+            throw new Error("The certificate contains invalid characters. It may have been corrupted during copy/paste, or the file isn't a real PEM certificate.");
+        }
+        let bin;
+        try {
+            bin = atob(b64);
+        } catch (e) {
+            throw new Error("The certificate data isn't valid base64. It may be truncated, corrupted, or have been modified during copy/paste.");
+        }
         const der = new Uint8Array(bin.length);
         for (let i = 0; i < bin.length; i++) der[i] = bin.charCodeAt(i);
         return der;
@@ -310,8 +335,15 @@
     }
 
     function parseCertificate(der) {
-        const cert = parseAsn1(der);
-        if (!cert.constructed || cert.tag !== 16) throw new Error("Expected SEQUENCE (Certificate)");
+        let cert;
+        try {
+            cert = parseAsn1(der);
+        } catch (e) {
+            throw new Error("The decoded bytes aren't a valid X.509 certificate structure (ASN.1 parse failed: " + e.message + ").");
+        }
+        if (!cert.constructed || cert.tag !== 16) {
+            throw new Error("The decoded bytes don't start with a SEQUENCE — this doesn't look like an X.509 certificate.");
+        }
         const tbs = cert.children[0];
         const sigAlg = cert.children[1];
         const sigValue = cert.children[2];
@@ -508,7 +540,7 @@
             resultContent.appendChild(renderCert(cert, sha1, sha256));
             resultsEl.classList.remove("hidden");
         } catch (e) {
-            showError("Failed to parse certificate: " + e.message);
+            showError(e.message);
         }
     });
 
