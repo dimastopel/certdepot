@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """Daily cert-depot.com analytics report — sent via agentmail.to"""
 
+import io
 import json
+import subprocess
+import tempfile
 import urllib.request
+import zipfile
 from datetime import date, timedelta
 
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
@@ -368,6 +372,108 @@ def send_email(subject, text):
         return json.loads(resp.read())
 
 
+SYNTHETIC_BASE = "https://cert-depot.com"
+SYNTHETIC_UA = "cert-depot-synthetic/1.0"
+
+
+def _http_get(path, timeout=15):
+    req = urllib.request.Request(SYNTHETIC_BASE + path, headers={"User-Agent": SYNTHETIC_UA})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return r.status, r.headers, r.read()
+
+
+def synthetic_test():
+    """End-to-end probe of cert-depot.com. Returns (overall_ok, [report_lines])."""
+    lines = []
+    overall_ok = True
+
+    # 1. Homepage reachable and HTML contains the brand string
+    try:
+        status, _, body = _http_get("/")
+        ok = status == 200 and b"Certificate Depot" in body
+        lines.append(f"  Homepage:        {'OK' if ok else 'FAIL'} (HTTP {status})")
+        overall_ok = overall_ok and ok
+    except Exception as e:
+        lines.append(f"  Homepage:        FAIL ({e})")
+        overall_ok = False
+
+    # 2. Health endpoint
+    try:
+        status, _, body = _http_get("/api/health")
+        data = json.loads(body)
+        ok = status == 200 and data.get("status") == "ok"
+        lines.append(f"  /api/health:     {'OK' if ok else 'FAIL'}")
+        overall_ok = overall_ok and ok
+    except Exception as e:
+        lines.append(f"  /api/health:     FAIL ({e})")
+        overall_ok = False
+
+    # 3. Full generation flow: POST /api/generate, parse the cert with openssl, verify CN
+    cn = f"synthetic-test-{date.today().isoformat()}.local"
+    try:
+        body = json.dumps({
+            "commonName": cn,
+            "validityDays": 30,
+            "keyType": "rsa2048",
+            "outputFormat": "zip",
+            "sans": [],
+        }).encode()
+        req = urllib.request.Request(
+            SYNTHETIC_BASE + "/api/generate",
+            data=body,
+            headers={"Content-Type": "application/json", "User-Agent": SYNTHETIC_UA},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=30) as r:
+            ct = r.headers.get("Content-Type", "")
+            zip_bytes = r.read()
+
+        if "application/zip" not in ct:
+            lines.append(f"  /api/generate:   FAIL (unexpected content-type {ct!r})")
+            overall_ok = False
+        else:
+            zf = zipfile.ZipFile(io.BytesIO(zip_bytes))
+            names = zf.namelist()
+            cert_name = next((n for n in names if n.endswith("certificate.pem")), None)
+            if not cert_name:
+                lines.append(f"  /api/generate:   FAIL (no certificate.pem in zip; found {names})")
+                overall_ok = False
+            else:
+                pem_bytes = zf.read(cert_name)
+                with tempfile.NamedTemporaryFile(suffix=".pem", delete=False) as tf:
+                    tf.write(pem_bytes)
+                    tf_path = tf.name
+                proc = subprocess.run(
+                    ["openssl", "x509", "-in", tf_path, "-noout", "-subject"],
+                    capture_output=True, text=True, timeout=10,
+                )
+                ok = proc.returncode == 0 and cn in proc.stdout
+                subj = proc.stdout.strip() or proc.stderr.strip()
+                lines.append(f"  /api/generate:   {'OK' if ok else 'FAIL'} ({subj})")
+                overall_ok = overall_ok and ok
+    except Exception as e:
+        lines.append(f"  /api/generate:   FAIL ({e})")
+        overall_ok = False
+
+    # 4. Sample tool + guide pages
+    sample = ["/tools/pem-decoder", "/guides/self-signed-cert-nginx", "/guides/why-sans-matter"]
+    failures = []
+    for path in sample:
+        try:
+            status, _, _ = _http_get(path)
+            if status != 200:
+                failures.append(f"{path}={status}")
+        except Exception as e:
+            failures.append(f"{path}={e}")
+    if not failures:
+        lines.append(f"  Pages ({len(sample)}/{len(sample)}):     OK")
+    else:
+        lines.append(f"  Pages:           FAIL ({', '.join(failures)})")
+        overall_ok = False
+
+    return overall_ok, lines
+
+
 def pct_change(current, previous):
     if previous == 0:
         return "+∞" if current > 0 else "flat"
@@ -403,10 +509,20 @@ def main():
 
     certs = get_counter()
     cn_entries = get_cn_log()
+    # Filter out synthetic-test CNs so the per-cert section reflects real users
+    cn_entries = [e for e in cn_entries if not e["cn"].startswith("synthetic-test-")]
     deployments = get_deployments(days=7)
+
+    # Synthetic end-to-end test (run first so it's the most prominent thing in the email)
+    synth_ok, synth_lines = synthetic_test()
 
     # === Build report ===
     lines = []
+
+    # Synthetic test result — at the top
+    lines.append(f"**Synthetic Test — {'PASS' if synth_ok else 'FAIL'}**")
+    lines.extend(synth_lines)
+    lines.append("")
 
     # Content Deployments
     lines.append("**Content Deployed (last 7 days)**")

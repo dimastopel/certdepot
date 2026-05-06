@@ -196,6 +196,23 @@ def mark_deployed(item_dir):
     item_dir.rename(deployed_path)
 
 
+def notify_search_engines(urls):
+    """Ping IndexNow + re-submit sitemap to GSC. Best-effort, never fails the deploy."""
+    notifier = REPO / "scripts" / "notify_search_engines.py"
+    if not notifier.exists():
+        return
+    try:
+        proc = subprocess.run(
+            [str(notifier)] + urls,
+            capture_output=True, text=True, timeout=30,
+        )
+        for line in (proc.stdout + proc.stderr).splitlines():
+            if line.strip():
+                print(f"  {line}")
+    except Exception as e:
+        print(f"  notify_search_engines failed: {e}")
+
+
 def main():
     item = next_item()
     if not item:
@@ -216,11 +233,41 @@ def main():
     update_homepage_links()
     print("  Homepage links updated")
 
+    # Inject TechArticle JSON-LD into any guides that lack it (idempotent).
+    # Only meaningful for guide deploys; safe to run for tools (it's a no-op).
+    if meta.get("type") == "guide":
+        injector = REPO / "scripts" / "inject_jsonld.py"
+        if injector.exists():
+            r = subprocess.run(["python3", str(injector)], cwd=REPO, capture_output=True, text=True)
+            for line in r.stdout.splitlines():
+                if "injected" in line:
+                    print(f"  JSON-LD: {line}")
+
     rebuild_and_restart()
     print("  Service restarted")
 
     mark_deployed(item)
     print(f"  Deployed: {meta['title']} -> {url_path}")
+
+    # Ping search engines after the new content is actually live
+    full_url = SITE_BASE + url_path
+    notify_search_engines([full_url, SITE_BASE + "/", SITE_BASE + "/sitemap.xml"])
+
+    # Cross-post guides to dev.to (skipped silently if no API key configured)
+    if meta.get("type") == "guide":
+        cross_poster = REPO / "scripts" / "cross_post_devto.py"
+        devto_key = Path("/home/certdepot/devto_api_key.txt")
+        if cross_poster.exists() and devto_key.exists():
+            try:
+                r = subprocess.run(
+                    ["python3", str(cross_poster), meta["slug"]],
+                    cwd=REPO, capture_output=True, text=True, timeout=60,
+                )
+                for line in (r.stdout + r.stderr).splitlines():
+                    if line.strip():
+                        print(f"  dev.to: {line}")
+            except Exception as e:
+                print(f"  dev.to cross-post failed: {e}")
 
 
 if __name__ == "__main__":

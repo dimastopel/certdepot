@@ -69,6 +69,12 @@ func main() {
 		w.Header().Set("Content-Type", "application/xml; charset=utf-8")
 		w.Write(data)
 	})
+	// IndexNow key — must be reachable at the root for search-engine verification.
+	mux.HandleFunc("GET /e0c2aaae51eec2777f2dbd044bcf8cf4.txt", func(w http.ResponseWriter, r *http.Request) {
+		data, _ := staticFiles.ReadFile("static/e0c2aaae51eec2777f2dbd044bcf8cf4.txt")
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.Write(data)
+	})
 
 	// Serve tool and guide pages from static/tools/ and static/guides/
 	slugRe := regexp.MustCompile(`^[a-z0-9-]{1,64}$`)
