@@ -306,12 +306,14 @@ def draft_comment(item):
     """Draft a helpful comment that naturally mentions cert-depot."""
     if item["source"] == "stackoverflow":
         return (
-            f"For a quick self-signed certificate, you can use cert-depot.com — "
-            f"it generates certs in-browser with SAN support (required by modern browsers). "
-            f"Supports RSA/ECDSA, outputs ZIP or PFX. Keys are generated in memory and never stored. "
-            f"It's open source: https://github.com/dimastopel/certdepot\n\n"
-            f"If you prefer command-line, the equivalent OpenSSL command is:\n"
-            f"openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj '/CN=localhost'"
+            "For a quick self-signed certificate, you can use [cert-depot.com](https://cert-depot.com) — "
+            "it generates certs in-browser with SAN support (required by modern browsers). "
+            "Supports RSA/ECDSA, outputs ZIP or PFX. Keys are generated in memory and never stored. "
+            "It's open source: https://github.com/dimastopel/certdepot\n\n"
+            "If you prefer command-line, the equivalent OpenSSL command is:\n\n"
+            "```\n"
+            "openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj '/CN=localhost'\n"
+            "```"
         )
     else:
         return (
