@@ -258,6 +258,8 @@ def parse_guide(slug):
 # ---------------- Posting ----------------
 
 def post_to_devto(api_key, title, body_md, canonical, tags):
+    import re as _re
+    import time as _time
     payload = {
         "article": {
             "title": title,
@@ -267,25 +269,45 @@ def post_to_devto(api_key, title, body_md, canonical, tags):
             "tags": tags,
         }
     }
-    req = urllib.request.Request(
-        DEVTO_API,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "api-key": api_key,
-            "Content-Type": "application/json",
-            "Accept": "application/vnd.forem.api-v1+json",
-        },
-        method="POST",
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            return json.loads(resp.read())
-    except urllib.error.HTTPError as e:
-        body = e.read().decode("utf-8", "replace")
-        raise SystemExit(f"dev.to HTTP {e.code}: {body[:500]}")
+    body = json.dumps(payload).encode("utf-8")
+    headers = {
+        "api-key": api_key,
+        "Content-Type": "application/json",
+        "Accept": "application/vnd.forem.api-v1+json",
+        "User-Agent": "cert-depot-cross-poster/1.0 (+https://cert-depot.com)",
+    }
+
+    for attempt in range(4):
+        req = urllib.request.Request(DEVTO_API, data=body, headers=headers, method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return json.loads(resp.read())
+        except urllib.error.HTTPError as e:
+            text = e.read().decode("utf-8", "replace")
+            # Honour dev.to's "try again in N seconds" on 429s
+            if e.code == 429:
+                wait = 60
+                m = _re.search(r"try again in (\d+) seconds", text, _re.IGNORECASE)
+                retry_after = e.headers.get("Retry-After")
+                if m:
+                    wait = int(m.group(1)) + 5
+                elif retry_after and retry_after.isdigit():
+                    wait = int(retry_after) + 5
+                print(f"  dev.to 429: sleeping {wait}s before retry ({attempt + 1}/4)")
+                _time.sleep(wait)
+                continue
+            # 5xx: short backoff and retry once
+            if 500 <= e.code < 600 and attempt < 2:
+                print(f"  dev.to {e.code}: short backoff (attempt {attempt + 1}/4)")
+                _time.sleep(15)
+                continue
+            raise SystemExit(f"dev.to HTTP {e.code}: {text[:500]}")
+    raise SystemExit("dev.to: gave up after retries")
 
 
 def main():
+    import time
+
     api_key = load_api_key()
     posted = load_posted()
 
@@ -297,10 +319,16 @@ def main():
             print("Nothing to do — every guide has already been cross-posted.")
             return
 
+    first = True
     for slug in slugs:
         if slug in posted:
             print(f"{slug}: already posted ({posted[slug].get('url', '?')})")
             continue
+        if not first:
+            # dev.to throttles new accounts hard — observed 429 ("retry in 300s")
+            # after only a few posts. 90s between posts keeps us well under.
+            time.sleep(90)
+        first = False
         title, desc, body_md, canonical = parse_guide(slug)
         result = post_to_devto(api_key, title, body_md, canonical, DEFAULT_TAGS)
         url = result.get("url", "?")
