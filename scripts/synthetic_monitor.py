@@ -17,9 +17,13 @@ from daily_report import send_email, synthetic_test  # noqa: E402
 
 # Sibling crons that should touch their log every day. If one goes quiet for
 # more than this long, cron or the script itself has broken.
+#
+# Empty as of 2026-09-13: the content-deploy and dev.to crons are disabled, so
+# there is nothing to watch and a staleness check would fire a false alert
+# every day. Re-add entries here if those crons are re-enabled.
 SIBLING_LOGS = {
-    "deploy_content": "/home/certdepot/cert-depot/logs/deploy_content.log",
-    "dev.to drain": "/home/certdepot/cert-depot/logs/devto_post.log",
+    # "deploy_content": "/home/certdepot/cert-depot/logs/deploy_content.log",
+    # "dev.to drain": "/home/certdepot/cert-depot/logs/devto_post.log",
 }
 STALE_AFTER_HOURS = 36
 
@@ -50,7 +54,9 @@ def main():
     synth_ok, synth_lines = synthetic_test()
     cron_ok, cron_lines = check_sibling_crons()
 
-    report = ["Synthetic test:"] + synth_lines + ["", "Daily crons:"] + cron_lines
+    report = ["Synthetic test:"] + synth_lines
+    if cron_lines:
+        report += ["", "Daily crons:"] + cron_lines
     body = "\n".join(report)
 
     # Always log the full result so history is inspectable without email.
