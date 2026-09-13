@@ -1,0 +1,14 @@
+# cert-depot daily analytics report — 6:00 AM Israel time (11 PM EDT)
+# Daily report email disabled 2026-09-13 — replaced by synthetic_monitor.py (alerts only)
+#0 23 * * * /home/certdepot/.venv/bin/python3 /home/certdepot/cert-depot/daily_report.py >> /home/certdepot/cert-depot/logs/daily_report.log 2>&1
+
+# cert-depot daily content deploy — 5:45 AM Israel time (10:45 PM EDT), 15 min before report
+# DISABLED 2026-09-13 (marketing paused by request)
+#45 22 * * * /home/certdepot/.venv/bin/python3 /home/certdepot/cert-depot/scripts/deploy_content.py >> /home/certdepot/cert-depot/logs/deploy_content.log 2>&1
+
+# cert-depot dev.to backlog drain — 6:30 AM Israel time, after deploy + report
+# DISABLED 2026-09-13 (marketing paused by request)
+#30 23 * * * cd /home/certdepot/cert-depot && /usr/bin/python3 /home/certdepot/cert-depot/scripts/cross_post_devto.py >> /home/certdepot/cert-depot/logs/devto_post.log 2>&1
+
+# cert-depot synthetic health monitor — emails ONLY on failure. 6:00 AM Israel time (11 PM EDT)
+0 23 * * * /home/certdepot/.venv/bin/python3 /home/certdepot/cert-depot/scripts/synthetic_monitor.py >> /home/certdepot/cert-depot/logs/synthetic_monitor.log 2>&1
